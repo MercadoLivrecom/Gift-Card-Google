@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GiftCard Netlify</title>
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  <style>
+    :root {
+      --gold: #FFD700;
+      --gold-dark: #C5A000;
+      --gold-light: #FFF3C4;
+      --black: #0A0A0A;
+      --black-soft: #1A1A1A;
+      --primary: #EA1D2C;
+      --success: #38B03F;
+      --bg: #F7F7F7;
+      --card: #FFFFFF;
+      --text: #212225;
+      --text-light: #767676;
+      --radius: 12px;
+      --paypal-blue: #0070BA;
+      --pix-green: #32BCAD;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--card); padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-bottom: 1px solid #eee; height: 60px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .menu-btn { background: none; border: none; cursor: pointer; color: var(--text); padding: 4px; display: flex; align-items: center; justify-content: center; }
+    .menu-btn svg { width: 26px; height: 26px; }
+    .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .brand svg { width: 28px; height: 28px; color: var(--primary); }
+    .brand h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); white-space: nowrap; }
+    .brand span { color: var(--primary); }
+    .header-icons { display: flex; align-items: center; gap: 4px; }
+    .icon-btn { background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); }
+    .icon-btn:hover { background: #f0f0f0; }
+    .icon-btn svg { width: 24px; height: 24px; }
+    .cart-wrapper { position: relative; }
+    .cart-badge { position: absolute; top: 0; right: 0; background: var(--primary); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); transform: scale(0); transition: transform 0.2s; }
+    .cart-badge.show { transform: scale(1); }
+
+    .search-container {
+      position: absolute; top: 60px; left: 0; right: 0; background: var(--card);
+      padding: 10px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 99;
+      transform: translateY(-100%); transition: transform 0.3s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-container.active { transform: translateY(0); }
+    .search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: #f0f0f0; padding: 8px 12px; border-radius: 8px; }
+    .search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.95rem; }
+    .search-close { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 1.2rem; }
+
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 300px; background: var(--card); z-index: 201; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 2px 0 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, var(--black), var(--black-soft)); color: var(--gold); }
+    .sidebar-header h2 { font-size: 1.1rem; font-weight: 800; }
+    .close-sidebar { background: rgba(255,215,0,0.15); border: none; font-size: 1.3rem; cursor: pointer; color: var(--gold); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .close-sidebar:hover { background: rgba(255,215,0,0.25); }
+    .sidebar-search { padding: 16px; border-bottom: 1px solid #f0f0f0; }
+    .sidebar-search-box { display: flex; align-items: center; gap: 8px; background: #f5f5f5; padding: 10px 14px; border-radius: 10px; border: 1px solid #e0e0e0; }
+    .sidebar-search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.9rem; color: var(--text); }
+    .sidebar-search-box svg { width: 18px; height: 18px; color: var(--text-light); flex-shrink: 0; }
+    .sidebar-links { padding: 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+    .sidebar-link { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); padding: 14px 16px; border-radius: 10px; transition: all 0.2s; font-weight: 500; font-size: 0.95rem; }
+    .sidebar-link:hover { background: #f9f9f9; color: var(--primary); }
+    .sidebar-link svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .sidebar-divider { height: 1px; background: #eee; margin: 8px 16px; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid #eee; background: #fafafa; }
+    .sidebar-footer p { font-size: 0.75rem; color: var(--text-light); text-align: center; }
+
+    .banner-container {
+      width: calc(100% - 32px);
+      max-width: 1080px;
+      margin: 8px auto;
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      min-height: 100px;
+    }
+    .banner-slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 1.2s ease-in-out;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .banner-slide.active { opacity: 1; }
+
+    .banner-1 {
+      background: linear-gradient(135deg, #0A0A0A 50%, #1A1A1A 50%);
+    }
+    .banner-1 .banner-left {
+      flex: 1;
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .banner-1 .banner-icon {
+      width: 28px; height: 28px; margin-bottom: 4px;
+    }
+    .banner-1 .banner-icon svg { width: 100%; height: 100%; }
+    .banner-1 h2 {
+      color: var(--gold);
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+    .banner-1 p {
+      color: rgba(255,215,0,0.65);
+      font-size: 0.78rem;
+    }
+    .banner-1 .banner-right {
+      flex: 0.8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .banner-1 .banner-right svg {
+      width: 70px; height: 70px;
+      color: var(--gold); opacity: 0.18;
+    }
+
+    .banner-2 {
+      background: linear-gradient(135deg, #0A0A0A 55%, #1C1500 55%);
+    }
+    .banner-2 .banner-left {
+      flex: 1;
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .banner-2 .banner-discount {
+      color: var(--gold);
+      font-size: 1.8rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .banner-2 .banner-discount span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      vertical-align: super;
+    }
+    .banner-2 h2 {
+      color: var(--gold);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .banner-2 p {
+      color: rgba(255,215,0,0.6);
+      font-size: 0.74rem;
+      margin-top: 2px;
+    }
+    .banner-2 .banner-right {
+      flex: 0.8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .banner-2 .banner-right svg {
+      width: 65px; height: 65px;
+      color: var(--gold); opacity: 0.15;
+    }
+
+    @media (max-width: 768px) {
+      .banner-container { 
+        width: calc(100% - 24px);
+        margin: 8px auto;
+        border-radius: 12px; 
+        min-height: 90px;
+      }
+      .banner-slide { min-height: 90px; }
+
+      .banner-1 .banner-left { padding: 12px 14px; }
+      .banner-1 h2 { font-size: 0.9rem; }
+      .banner-1 p { font-size: 0.72rem; }
+      .banner-1 .banner-icon { width: 24px; height: 24px; margin-bottom: 3px; }
+      .banner-1 .banner-right svg { width: 50px; height: 50px; }
+
+      .banner-2 .banner-left { padding: 12px 14px; }
+      .banner-2 .banner-discount { font-size: 1.5rem; }
+      .banner-2 h2 { font-size: 0.85rem; }
+      .banner-2 p { font-size: 0.68rem; }
+      .banner-2 .banner-right svg { width: 45px; height: 45px; }
+
+      .sidebar { width: 280px; }
+      .brand h1 { font-size: 1rem; }
+    }
+
+    @media (max-width: 400px) {
+      .banner-container { 
+        width: calc(100% - 16px);
+        min-height: 85px;
+      }
+      .banner-slide { min-height: 85px; }
+      .banner-1 .banner-left { padding: 10px 12px; }
+      .banner-1 h2 { font-size: 0.82rem; }
+      .banner-1 p { font-size: 0.66rem; }
+      .banner-1 .banner-right svg { width: 38px; height: 38px; }
+      .banner-2 .banner-left { padding: 10px 12px; }
+      .banner-2 .banner-discount { font-size: 1.3rem; }
+      .banner-2 h2 { font-size: 0.78rem; }
+      .banner-2 p { font-size: 0.62rem; }
+      .banner-2 .banner-right svg { width: 36px; height: 36px; }
+    }
+
+    @media (min-width: 769px) {
+      .banner-container { min-height: 110px; }
+      .banner-slide { min-height: 110px; }
+    }
+
+    .container { max-width: 1100px; margin: 12px auto; padding: 0 16px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; border: 1px solid #f0f0f0; transition: transform 0.2s, box-shadow 0.2s; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+    .card img { width: 100%; aspect-ratio: 1.3/1; object-fit: contain; background: #fafafa; padding: 12px; display: block; }
+    .card-body { padding: 12px; }
+    .card-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+    .stars { display: flex; gap: 2px; color: #FFB800; font-size: 0.8rem; margin-bottom: 6px; }
+    .stars svg { width: 14px; height: 14px; fill: currentColor; }
+    
+    .price-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .discount-badge {
+      background: linear-gradient(135deg, #ff6b6b, var(--primary));
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(234, 29, 44, 0.3);
+    }
+    .promo-price {
+      color: var(--success);
+      font-weight: 800;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+    .price-info {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+    
+    .badge-tag { 
+      background: #FFE5E8; 
+      color: var(--primary); 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 0.7rem; 
+      font-weight: 600; 
+      display: inline-block; 
+      margin-top: 6px; 
+    }
+    
+    .payment-icons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+    .payment-method {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #f8f9fa;
+      border: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .payment-method.card {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .payment-method.pix {
+      background: #d1f4e8;
+      color: #0f5132;
+    }
+    .payment-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .payment-icon.pix-icon {
+      background: var(--pix-green);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+    }
+    .payment-icon.pix-icon svg {
+      width: 14px;
+      height: 14px;
+      fill: white;
+    }
+    .discount-percent {
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .overlay.active { opacity: 1; pointer-events: auto; }
+    .cart-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 100; transform: translateY(100%); transition: transform 0.3s; max-height: 80vh; overflow-y: auto; padding: 20px; }
+    .cart-sheet.active { transform: translateY(0); }
+    .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+    .qty-control { display: flex; align-items: center; background: #f0f0f0; border-radius: 8px; padding: 2px; }
+    .qty-btn { width: 28px; height: 28px; border: none; background: white; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .totals { margin-top: 16px; padding-top: 12px; border-top: 2px solid #eee; }
+    .total-row { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; margin-top: 10px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-outline { background: #f0f0f0; color: var(--text); margin-top: 8px; }
+
+    .value-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 300;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .value-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .value-modal-content {
+      background: var(--card);
+      width: 100%;
+      max-width: 500px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 24px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .value-modal.active .value-modal-content {
+      transform: translateY(0);
+    }
+    .value-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .value-modal-header h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .value-modal-close {
+      background: #f0f0f0;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .value-modal-close:hover {
+      background: #e0e0e0;
+    }
+    .value-display {
+      background: linear-gradient(135deg, var(--black), var(--black-soft));
+      color: var(--gold);
+      padding: 24px;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .value-label {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .value-amount {
+      font-size: 2.5rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .value-amount small {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    .discount-info {
+      background: #eafcf1;
+      color: var(--success);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 12px;
+      display: inline-block;
+    }
+    .slider-container {
+      margin: 24px 0;
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+    .slider-range {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .slider-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(234, 29, 44, 0.4);
+      transition: transform 0.2s;
+    }
+    .slider-range::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+    .slider-range::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(234, 29, 44, 0.4);
+    }
+    .quick-values {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 20px 0;
+    }
+    .quick-value-btn {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    .quick-value-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .quick-value-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .value-modal-footer {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px solid #f0f0f0;
+    }
+    .final-price {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+    .final-price-label {
+      font-weight: 600;
+      color: var(--text-light);
+    }
+    .final-price-value {
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--success);
+    }
+
+    /* RODAPÉ MELHORADO */
+    .site-footer {
+      background: var(--black);
+      color: #a0a0a0;
+      padding: 40px 16px 25px;
+      margin-top: auto;
+      font-size: 0.85rem;
+      border-top: 1px solid #222;
+    }
+    .footer-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin-bottom: 25px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid #222;
+    }
+    .footer-col {
+      min-width: 100%;
+    }
+    .footer-col h4 {
+      color: var(--gold);
+      margin-bottom: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+    .footer-col p {
+      margin-bottom: 6px;
+      line-height: 1.5;
+      color: #ccc;
+    }
+    .footer-col strong {
+      color: white;
+      font-weight: 600;
+    }
+    
+    /* Ícones de Pagamento e Segurança */
+    .footer-payments {
+      margin: 25px 0;
+      padding: 20px 0;
+      border-top: 1px solid #222;
+      border-bottom: 1px solid #222;
+    }
+    .footer-payments h4 {
+      color: var(--gold);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .payment-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+    /* Container sem fundo branco - apenas a imagem */
+    .payment-badge {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: none;
+      width: 80px;
+      height: 50px;
+      overflow: visible;
+    }
+    .payment-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .payment-badge svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .security-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #38B03F;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(56, 176, 63, 0.15);
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+    .security-badge svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+    }
+    .footer-bottom p {
+      font-size: 0.75rem;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .footer-bottom .cnae {
+      font-size: 0.7rem;
+      color: #555;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    @media (max-width: 400px) {
+      .value-amount { font-size: 2rem; }
+      .quick-values { grid-template-columns: repeat(2, 1fr); }
+      .promo-price { font-size: 1.1rem; }
+      .payment-method { padding: 5px 8px; font-size: 0.7rem; }
+      .payment-icon { width: 16px; height: 16px; }
+      .payment-badge { width: 65px; height: 45px; }
+      .security-badge { font-size: 0.75rem; padding: 6px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="brand" onclick="window.location.reload()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <h1>Gift<span>Card</span> Netlify</h1>
+      </div>
+    </div>
+    <div class="header-icons">
+      <button class="icon-btn" onclick="toggleSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" onclick="window.location.href='login.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+      <button class="icon-btn" onclick="openCart()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span id="cart-badge" class="cart-badge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="search-container" id="searchContainer">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:#767676"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Pesquisar produtos..." oninput="searchProducts()">
+    </div>
+    <button class="search-close" onclick="toggleSearch()">✕</button>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Menu</h2>
+      <button class="close-sidebar" onclick="toggleMenu()">✕</button>
+    </div>
+    <div class="sidebar-search">
+      <div class="sidebar-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="sidebarSearchInput" placeholder="Buscar produtos..." oninput="searchProductsFromSidebar()">
+      </div>
+    </div>
+    <div class="sidebar-links">
+      <a href="login.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Meu Perfil
+      </a>
+      <a href="#" class="sidebar-link" onclick="openCart(); toggleMenu(); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Meu Carrinho
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="Gift.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Vender Gift Card
+      </a>
+      <a href="politicas.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Políticas de Uso
+      </a>
+      <a href="reembolso.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Reembolso
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-link" onclick="toggleSearch(); toggleMenu(); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Buscar Produtos
+      </a>
+    </div>
+    <div class="sidebar-footer"><p>GiftCard Netlify 2026</p></div>
+  </div>
+
+  <!-- BANNERS -->
+  <div class="banner-container">
+    <a href="#produtos" class="banner-slide banner-1 active">
+      <div class="banner-left">
+        <div class="banner-icon">
+          <svg viewBox="0 0 60 60" fill="none">
+            <rect x="8" y="12" width="44" height="30" rx="4" stroke="#FFD700" stroke-width="2.5"/>
+            <line x1="8" y1="22" x2="52" y2="22" stroke="#FFD700" stroke-width="2"/>
+            <circle cx="18" cy="32" r="4" stroke="#FFD700" stroke-width="2"/>
+            <path d="M30 28h14M30 34h10" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22 6l8 6H14l8-6z" fill="#FFD700" opacity="0.3" stroke="#FFD700" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <h2>Vendemos também<br>seus cartões</h2>
+        <p>Receba dinheiro pelo seu Gift Card</p>
+      </div>
+      <div class="banner-right">
+        <svg viewBox="0 0 120 120" fill="none">
+          <rect x="10" y="20" width="100" height="70" rx="10" stroke="currentColor" stroke-width="3" stroke-dasharray="8 4"/>
+          <circle cx="40" cy="55" r="15" stroke="currentColor" stroke-width="3"/>
+          <path d="M70 40h25M70 55h18M70 70h12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M30 10l10 10H20l10-10z" fill="currentColor" opacity="0.2"/>
+        </svg>
+      </div>
+    </a>
+
+    <a href="#produtos" class="banner-slide banner-2">
+      <div class="banner-left">
+        <div class="banner-discount">15% <span>OFF</span></div>
+        <h2>Em todos os Gift Cards</h2>
+        <p>Compre agora e aproveite o desconto</p>
+      </div>
+      <div class="banner-right">
+        <svg viewBox="0 0 120 120" fill="none">
+          <polygon points="60,10 72,42 106,42 78,62 88,96 60,76 32,96 42,62 14,42 48,42" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.1"/>
+          <text x="60" y="68" text-anchor="middle" fill="currentColor" font-size="28" font-weight="900">%</text>
+        </svg>
+      </div>
+    </a>
+  </div>
+
+  <div class="container">
+    <div class="grid" id="product-grid"></div>
+  </div>
+
+  <!-- MODAL DE SELEÇÃO DE VALOR -->
+  <div class="value-modal" id="valueModal">
+    <div class="value-modal-content">
+      <div class="value-modal-header">
+        <h3 id="modalProductName">Gift Card</h3>
+        <button class="value-modal-close" onclick="closeValueModal()">✕</button>
+      </div>
+      
+      <div class="value-display">
+        <div class="value-label">Valor do Gift Card</div>
+        <div class="value-amount">R$ <span id="selectedValue">50</span><small>,00</small></div>
+        <div class="discount-info" id="discountBadge" style="display:none;">✓ Desconto aplicado!</div>
+      </div>
+
+      <div class="slider-container">
+        <div class="slider-labels">
+          <span id="minValueLabel">R$ 20</span>
+          <span id="maxValueLabel">R$ 300</span>
+        </div>
+        <input type="range" class="slider-range" id="valueSlider" min="20" max="300" value="50" step="5" oninput="updateValueDisplay()">
+      </div>
+
+      <div class="quick-values" id="quickValues">
+        <!-- Botões gerados dinamicamente -->
+      </div>
+
+      <div class="value-modal-footer">
+        <div class="final-price">
+          <div>
+            <span class="final-price-label">Total a pagar:</span>
+            <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 4px;">
+              Valor escolhido: R$ <span id="modalOriginalPrice">50</span>,00
+            </div>
+          </div>
+          <div class="final-price-value" id="finalPrice">R$ 42,50</div>
+        </div>
+        <button class="btn btn-primary" onclick="addCustomValueToCart()">Adicionar ao Carrinho</button>
+        <button class="btn btn-outline" onclick="closeValueModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="closeCart()"></div>
+  <div class="cart-sheet" id="cart-sheet">
+    <div class="cart-header">
+      <h3>Carrinho</h3>
+      <button class="qty-btn" onclick="closeCart()">✕</button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="totals">
+      <div id="cart-summary"></div>
+      <button class="btn btn-primary" id="btn-checkout" onclick="checkout()">Concluir Pedido</button>
+      <button class="btn btn-outline" onclick="closeCart()">Continuar Comprando</button>
+    </div>
+  </div>
+
+  <!-- RODAPÉ COM ÍCONES DE PAGAMENTO E SEGURANÇA -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>Dados da Empresa</h4>
+          <p><strong>Razão Social:</strong> RI Comercio de Presente e Utilidades Ltda</p>
+          <p><strong>CNPJ:</strong> 09.271.959/0001-36</p>
+          <p><strong>Fundação:</strong> 21/11/2007</p>
+          <p style="margin-top: 10px;"><strong>Endereço:</strong><br>Rua Hemisferio, 257<br>Chacara Belenzinho<br>Sao Paulo - SP<br>CEP: 03.375-000</p>
+        </div>
+      </div>
+      
+      <!-- Ícones de Pagamento - Apenas os que você enviou imagens -->
+      <div class="footer-payments">
+        <h4>Formas de Pagamento</h4>
+        <div class="payment-badges">
+          <div class="payment-badge" title="Visa">
+            <img src="visa.sxIq5Dot.svg" alt="Visa">
+          </div>
+          <div class="payment-badge" title="Mastercard">
+            <img src="mastercard.1c4_lyMp.svg" alt="Mastercard">
+          </div>
+          <div class="payment-badge" title="Elo">
+            <img src="elo.KvOdnY_5.svg" alt="Elo">
+          </div>
+          <div class="payment-badge" title="PIX">
+            <img src="pix.BiPKIIQK.svg" alt="PIX">
+          </div>
+        </div>
+        
+        <!-- Ícones de Segurança -->
+        <div class="security-badges">
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Ambiente Seguro</span>
+          </div>
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>SSL Certificado</span>
+          </div>
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Pagamento Verificado</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>CNAE G-4761-0/03 - Comércio varejista de artigos de papelaria</p>
+        <p>&copy; 2026 RI Comercio de Presente e Utilidades Ltda. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const products = [
+      { 
+        id: 'googleplay', 
+        name: 'Google Play', 
+        min: 20, 
+        max: 300, 
+        discountMin: 50,
+        discount: 15, 
+        img: 'Google.webp', 
+        tag: '15% OFF', 
+        rating: 4.9,
+        description: 'Escolha o valor'
+      },
+      { 
+        id: 'netflix', 
+        name: 'Netflix', 
+        min: 35, 
+        max: 300, 
+        discountMin: 35,
+        discount: 15, 
+        img: 'Netflix.webp', 
+        tag: '15% OFF', 
+        rating: 4.9,
+        description: 'Escolha o valor'
+      },
+      { 
+        id: 'americanas', 
+        name: 'Americanas', 
+        min: 50, 
+        max: 1000, 
+        discountMin: 50,
+        discount: 15, 
+        img: 'Americanas.webp', 
+        tag: '15% OFF', 
+        rating: 4.8,
+        description: 'Escolha o valor'
+      },
+      { 
+        id: 'paypal', 
+        name: 'PayPal', 
+        min: 50, 
+        max: 1000, 
+        discountMin: 50,
+        discount: 2.4, 
+        img: 'PayPal.webp', 
+        tag: '2.4% OFF', 
+        rating: 4.7,
+        description: 'Escolha o valor'
+      },
+      { 
+        id: 'recargapay', 
+        name: 'RecargaPay', 
+        min: 50, 
+        max: 1000, 
+        discountMin: 50,
+        discount: 0.9, 
+        img: 'recargapay.webp', 
+        tag: '0.9% OFF', 
+        rating: 4.6,
+        description: 'Escolha o valor'
+      },
+      { 
+        id: 'amazon', 
+        name: 'Amazon', 
+        min: 30, 
+        max: 1000, 
+        discountMin: 30,
+        discount: 10, 
+        img: 'Amazon.webp', 
+        tag: '10% OFF', 
+        rating: 4.9,
+        description: 'Escolha o valor'
+      }
+    ];
+
+    let cart = [];
+    let filteredProducts = [...products];
+    let currentProduct = null;
+    let currentValue = 50;
+
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    let currentBanner = 0;
+    const banners = document.querySelectorAll('.banner-slide');
+    setInterval(() => {
+      banners[currentBanner].classList.remove('active');
+      currentBanner = (currentBanner + 1) % banners.length;
+      banners[currentBanner].classList.add('active');
+    }, 5000);
+
+    function renderStars(rating) {
+      let stars = '';
+      const full = Math.floor(rating);
+      const half = rating % 1 >= 0.5;
+      for(let i=0; i<full; i++) stars += '<svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+      if(half) stars += '<svg viewBox="0 0 24 24"><defs><linearGradient id="hg"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="#ddd"/></linearGradient></defs><path fill="url(#hg)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+      for(let i=0; i<(5-full-(half?1:0)); i++) stars += '<svg viewBox="0 0 24 24" style="color:#ddd"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+      return stars;
+    }
+
+    function calculatePrice(product, value) {
+      const hasDiscount = value >= product.discountMin;
+      const discount = hasDiscount ? (value * product.discount / 100) : 0;
+      return {
+        original: value,
+        promo: value - discount,
+        hasDiscount: hasDiscount,
+        discountAmount: discount
+      };
+    }
+
+    function openValueModal(productId) {
+      currentProduct = products.find(p => p.id === productId);
+      if(!currentProduct) return;
+
+      currentValue = currentProduct.min;
+      document.getElementById('valueSlider').min = currentProduct.min;
+      document.getElementById('valueSlider').max = currentProduct.max;
+      document.getElementById('valueSlider').value = currentValue;
+      document.getElementById('modalProductName').textContent = `Gift Card ${currentProduct.name}`;
+      document.getElementById('minValueLabel').textContent = `R$ ${currentProduct.min}`;
+      document.getElementById('maxValueLabel').textContent = `R$ ${currentProduct.max}`;
+      
+      generateQuickValues();
+      updateValueDisplay();
+      document.getElementById('valueModal').classList.add('active');
+    }
+
+    function closeValueModal() {
+      document.getElementById('valueModal').classList.remove('active');
+      currentProduct = null;
+    }
+
+    function generateQuickValues() {
+      const container = document.getElementById('quickValues');
+      const range = currentProduct.max - currentProduct.min;
+      const step = range / 5;
+      const values = [];
+      
+      values.push(currentProduct.min);
+      
+      for(let i = 1; i < 5; i++) {
+        const val = Math.round(currentProduct.min + (step * i) / 5) * 5;
+        if(val > currentProduct.min && val < currentProduct.max) {
+          values.push(val);
+        }
+      }
+      
+      values.push(currentProduct.max);
+      
+      if(currentProduct.id === 'googleplay') {
+        values.push(50, 100);
+      } else if(currentProduct.id === 'netflix') {
+        values.push(50, 100);
+      } else if(currentProduct.id === 'americanas' || currentProduct.id === 'paypal' || currentProduct.id === 'recargapay' || currentProduct.id === 'amazon') {
+        values.push(100, 200, 500);
+      }
+      
+      const uniqueValues = [...new Set(values)].sort((a,b) => a - b).slice(0, 6);
+      
+      container.innerHTML = uniqueValues.map(val => `
+        <button class="quick-value-btn" onclick="setQuickValue(${val})">R$ ${val}</button>
+      `).join('');
+    }
+
+    function setQuickValue(val) {
+      currentValue = val;
+      document.getElementById('valueSlider').value = val;
+      updateValueDisplay();
+      
+      document.querySelectorAll('.quick-value-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === `R$ ${val}`);
+      });
+    }
+
+    function updateValueDisplay() {
+      currentValue = parseInt(document.getElementById('valueSlider').value);
+      const prices = calculatePrice(currentProduct, currentValue);
+      
+      document.getElementById('selectedValue').textContent = currentValue;
+      document.getElementById('modalOriginalPrice').textContent = currentValue;
+      document.getElementById('finalPrice').textContent = `R$ ${prices.promo.toFixed(2)}`;
+      
+      const discountBadge = document.getElementById('discountBadge');
+      if(prices.hasDiscount) {
+        discountBadge.style.display = 'inline-block';
+        discountBadge.textContent = `✓ ${currentProduct.discount}% de desconto aplicado!`;
+      } else {
+        discountBadge.style.display = 'none';
+      }
+      
+      document.querySelectorAll('.quick-value-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === `R$ ${currentValue}`);
+      });
+    }
+
+    function addCustomValueToCart() {
+      if(!currentProduct) return;
+      
+      const prices = calculatePrice(currentProduct, currentValue);
+      const itemId = `${currentProduct.id}_${currentValue}`;
+      
+      const existing = cart.find(x => x.id === itemId);
+      if(existing) {
+        existing.qty++;
+      } else {
+        cart.push({
+          id: itemId,
+          productId: currentProduct.id,
+          name: `${currentProduct.name} R$${currentValue}`,
+          value: currentValue,
+          original: prices.original,
+          promo: prices.promo,
+          qty: 1,
+          img: currentProduct.img
+        });
+      }
+      
+      updateBadge();
+      closeValueModal();
+      openCart();
+      renderCart();
+    }
+
+    function renderProducts(list = filteredProducts) {
+      const grid = document.getElementById('product-grid');
+      if(list.length === 0) { grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:40px;color:#888">Nenhum produto encontrado.</p>'; return; }
+      grid.innerHTML = list.map(p => {
+        const samplePrice = calculatePrice(p, p.min);
+        return `
+        <div class="card" onclick="openValueModal('${p.id}')">
+          <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x220?text=${p.name}'">
+          <div class="card-body">
+            <p class="card-title">Gift Card ${p.name}</p>
+            <div class="stars">${renderStars(p.rating)}</div>
+            
+            <div class="price-section">
+              <span class="discount-badge">-${p.discount}% OFF</span>
+              <span class="promo-price">R$ ${samplePrice.promo.toFixed(2)}</span>
+            </div>
+            
+            <div class="price-info">
+              Escolha o valor: R$ ${p.min} a R$ ${p.max}
+            </div>
+            
+            <span class="badge-tag">${p.tag}</span>
+            <div class="payment-icons">
+              <div class="payment-method card">
+                <svg class="payment-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                <span class="discount-percent">-${p.discount}%</span>
+              </div>
+              <div class="payment-method pix">
+                <div class="payment-icon pix-icon">
+                  <svg viewBox="0 0 32 32" fill="white">
+                    <path d="M16 4L10.5 9.5L16 15L21.5 9.5L16 4ZM8 12L4 16L8 20L12 16L8 12ZM24 12L20 16L24 20L28 16L24 12ZM16 17L10.5 22.5L16 28L21.5 22.5L16 17Z"/>
+                  </svg>
+                </div>
+                <span class="discount-percent">-${p.discount}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `}).join('');
+    }
+
+    function toggleSearch() { document.getElementById('searchContainer').classList.toggle('active'); }
+    function searchProducts() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      filteredProducts = q ? products.filter(p => p.name.toLowerCase().includes(q)) : [...products];
+      renderProducts();
+    }
+    function searchProductsFromSidebar() {
+      const q = document.getElementById('sidebarSearchInput').value.toLowerCase();
+      filteredProducts = q ? products.filter(p => p.name.toLowerCase().includes(q)) : [...products];
+      renderProducts();
+      toggleMenu();
+    }
+
+    function updateQty(id, d) {
+      const item = cart.find(x => x.id === id);
+      if(!item) return;
+      item.qty += d;
+      if(item.qty <= 0) cart = cart.filter(x => x.id !== id);
+      updateBadge(); renderCart();
+    }
+    function calculateTotals() { return cart.reduce((acc, i) => ({ total: acc.total + (i.promo * i.qty), qty: acc.qty + i.qty }), {total: 0, qty: 0}); }
+    function renderCart() {
+      const container = document.getElementById('cart-items');
+      const btn = document.getElementById('btn-checkout');
+      const {total} = calculateTotals();
+      if(cart.length === 0) { container.innerHTML = '<p style="text-align:center;padding:30px;color:#888">Carrinho vazio</p>'; document.getElementById('cart-summary').innerHTML = ''; btn.disabled = true; return; }
+      container.innerHTML = cart.map(i => `
+        <div class="cart-item">
+          <div>
+            <strong>${i.name}</strong>
+            <br><small>R$ ${i.promo.toFixed(2)} x ${i.qty}</small>
+            ${i.value ? `<br><small style="color:var(--text-light)">Valor: R$ ${i.value}</small>` : ''}
+          </div>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="updateQty('${i.id}', -1)">−</button>
+            <span style="padding:0 10px;font-weight:bold">${i.qty}</span>
+            <button class="qty-btn" onclick="updateQty('${i.id}', 1)">+</button>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('cart-summary').innerHTML = `<div class="total-row"><span>Total:</span><span>R$ ${total.toFixed(2)}</span></div>`;
+      btn.disabled = total < 20;
+    }
+    function updateBadge() { const b = document.getElementById('cart-badge'); const count = cart.reduce((s, i) => s + i.qty, 0); b.textContent = count; b.classList.toggle('show', count > 0); }
+    function openCart() { document.getElementById('cart-sheet').classList.add('active'); document.getElementById('overlay').classList.add('active'); renderCart(); }
+    function closeCart() { document.getElementById('cart-sheet').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
+    function checkout() { const {total} = calculateTotals(); if(total < 20) return; const data = cart.map(i => ({id:i.id, name:i.name, qty:i.qty, price:i.promo, value:i.value})); window.location.href = `checkout.html?items=${btoa(JSON.stringify(data))}&total=${total.toFixed(2)}`; }
+
+    document.getElementById('valueModal').addEventListener('click', function(e) {
+      if(e.target === this) closeValueModal();
+    });
+
+    renderProducts();
+  </script>
+</body>
+</html>

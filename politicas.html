@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Políticas de Uso - GiftCard Netlify</title>
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  <style>
+    :root {
+      --gold: #FFD700;
+      --gold-dark: #C5A000;
+      --gold-light: #FFF3C4;
+      --black: #0A0A0A;
+      --black-soft: #1A1A1A;
+      --primary: #EA1D2C;
+      --success: #38B03F;
+      --bg: #F7F7F7;
+      --card: #FFFFFF;
+      --text: #212225;
+      --text-light: #767676;
+      --radius: 12px;
+      --paypal-blue: #0070BA;
+      --pix-green: #32BCAD;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--card); padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-bottom: 1px solid #eee; height: 60px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .menu-btn { background: none; border: none; cursor: pointer; color: var(--text); padding: 4px; display: flex; align-items: center; justify-content: center; }
+    .menu-btn svg { width: 26px; height: 26px; }
+    .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .brand svg { width: 28px; height: 28px; color: var(--primary); }
+    .brand h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); white-space: nowrap; }
+    .brand span { color: var(--primary); }
+    .header-icons { display: flex; align-items: center; gap: 4px; }
+    .icon-btn { background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); }
+    .icon-btn:hover { background: #f0f0f0; }
+    .icon-btn svg { width: 24px; height: 24px; }
+    .cart-wrapper { position: relative; }
+    .cart-badge { position: absolute; top: 0; right: 0; background: var(--primary); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); transform: scale(0); transition: transform 0.2s; }
+    .cart-badge.show { transform: scale(1); }
+
+    .search-container {
+      position: absolute; top: 60px; left: 0; right: 0; background: var(--card);
+      padding: 10px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 99;
+      transform: translateY(-100%); transition: transform 0.3s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-container.active { transform: translateY(0); }
+    .search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: #f0f0f0; padding: 8px 12px; border-radius: 8px; }
+    .search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.95rem; }
+    .search-close { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 1.2rem; }
+
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 300px; background: var(--card); z-index: 201; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 2px 0 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, var(--black), var(--black-soft)); color: var(--gold); }
+    .sidebar-header h2 { font-size: 1.1rem; font-weight: 800; }
+    .close-sidebar { background: rgba(255,215,0,0.15); border: none; font-size: 1.3rem; cursor: pointer; color: var(--gold); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .close-sidebar:hover { background: rgba(255,215,0,0.25); }
+    .sidebar-search { padding: 16px; border-bottom: 1px solid #f0f0f0; }
+    .sidebar-search-box { display: flex; align-items: center; gap: 8px; background: #f5f5f5; padding: 10px 14px; border-radius: 10px; border: 1px solid #e0e0e0; }
+    .sidebar-search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.9rem; color: var(--text); }
+    .sidebar-search-box svg { width: 18px; height: 18px; color: var(--text-light); flex-shrink: 0; }
+    .sidebar-links { padding: 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+    .sidebar-link { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); padding: 14px 16px; border-radius: 10px; transition: all 0.2s; font-weight: 500; font-size: 0.95rem; }
+    .sidebar-link:hover { background: #f9f9f9; color: var(--primary); }
+    .sidebar-link svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .sidebar-divider { height: 1px; background: #eee; margin: 8px 16px; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid #eee; background: #fafafa; }
+    .sidebar-footer p { font-size: 0.75rem; color: var(--text-light); text-align: center; }
+
+    /* CONTEÚDO DAS POLÍTICAS */
+    .policies-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+    .policies-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px 20px;
+      background: linear-gradient(135deg, var(--black), var(--black-soft));
+      border-radius: 16px;
+      color: white;
+    }
+    .policies-header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--gold);
+    }
+    .policies-header p {
+      color: rgba(255,255,255,0.8);
+      font-size: 1rem;
+    }
+    .policies-header .last-update {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    
+    .policy-section {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .policy-section h2 {
+      color: var(--primary);
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .policy-section h2 svg {
+      width: 28px;
+      height: 28px;
+      color: var(--gold);
+    }
+    .policy-section h3 {
+      color: var(--text);
+      font-size: 1.1rem;
+      margin: 20px 0 10px;
+      font-weight: 700;
+    }
+    .policy-section p {
+      color: var(--text-light);
+      line-height: 1.8;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+    }
+    .policy-section ul {
+      margin: 15px 0 15px 25px;
+      color: var(--text-light);
+      line-height: 1.8;
+    }
+    .policy-section ul li {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    .policy-section strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .highlight-box {
+      background: linear-gradient(135deg, #fff3cd, #ffe69c);
+      border-left: 4px solid var(--gold);
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .highlight-box.warning {
+      background: linear-gradient(135deg, #ffebee, #ffcdd2);
+      border-left-color: var(--primary);
+    }
+    .highlight-box.success {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border-left-color: var(--success);
+    }
+
+    /* RODAPÉ */
+    .site-footer {
+      background: var(--black);
+      color: #a0a0a0;
+      padding: 40px 16px 25px;
+      margin-top: auto;
+      font-size: 0.85rem;
+      border-top: 1px solid #222;
+    }
+    .footer-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin-bottom: 25px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid #222;
+    }
+    .footer-col {
+      min-width: 100%;
+    }
+    .footer-col h4 {
+      color: var(--gold);
+      margin-bottom: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+    .footer-col p {
+      margin-bottom: 6px;
+      line-height: 1.5;
+      color: #ccc;
+    }
+    .footer-col strong {
+      color: white;
+      font-weight: 600;
+    }
+    
+    .footer-payments {
+      margin: 25px 0;
+      padding: 20px 0;
+      border-top: 1px solid #222;
+      border-bottom: 1px solid #222;
+    }
+    .footer-payments h4 {
+      color: var(--gold);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .payment-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+    .payment-badge {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: none;
+      width: 80px;
+      height: 50px;
+      overflow: visible;
+    }
+    .payment-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .payment-badge svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .security-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #38B03F;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(56, 176, 63, 0.15);
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+    .security-badge svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+    }
+    .footer-bottom p {
+      font-size: 0.75rem;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .footer-bottom .cnae {
+      font-size: 0.7rem;
+      color: #555;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .policies-header h1 {
+        font-size: 1.6rem;
+      }
+      .policy-section {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .policies-header h1 {
+        font-size: 1.4rem;
+      }
+      .payment-badge { width: 65px; height: 45px; }
+      .security-badge { font-size: 0.75rem; padding: 6px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="brand" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <h1>Gift<span>Card</span> Netlify</h1>
+      </div>
+    </div>
+    <div class="header-icons">
+      <button class="icon-btn" onclick="toggleSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" onclick="window.location.href='login.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+      <button class="icon-btn" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="search-container" id="searchContainer">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:#767676"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Pesquisar produtos...">
+    </div>
+    <button class="search-close" onclick="toggleSearch()">✕</button>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Menu</h2>
+      <button class="close-sidebar" onclick="toggleMenu()">✕</button>
+    </div>
+    <div class="sidebar-search">
+      <div class="sidebar-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="sidebarSearchInput" placeholder="Buscar produtos...">
+      </div>
+    </div>
+    <div class="sidebar-links">
+      <a href="login.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Meu Perfil
+      </a>
+      <a href="index.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Comprar Gift Cards
+      </a>
+      <a href="Gift.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Vender Gift Card
+      </a>
+      <a href="politicas.html" class="sidebar-link" style="background: #f9f9f9; color: var(--primary);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Políticas de Uso
+      </a>
+      <a href="reembolso.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Reembolso
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-link" onclick="toggleSearch(); toggleMenu(); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Buscar Produtos
+      </a>
+    </div>
+    <div class="sidebar-footer"><p>GiftCard Netlify 2026</p></div>
+  </div>
+
+  <!-- CONTEÚDO DAS POLÍTICAS -->
+  <div class="policies-container">
+    <div class="policies-header">
+      <h1>Políticas de Uso e Termos de Serviço</h1>
+      <p>Leia atentamente os termos e condições de uso da nossa plataforma</p>
+      <div class="last-update">Última atualização: Janeiro de 2026</div>
+    </div>
+
+    <!-- 1. TERMOS DE USO -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        1. Termos de Uso
+      </h2>
+      
+      <p>Ao acessar e utilizar a plataforma <strong>GiftCard Netlify</strong>, você concorda com os seguintes termos:</p>
+      
+      <h3>1.1 Aceitação dos Termos</h3>
+      <p>Ao utilizar nossos serviços, você declara que leu, compreendeu e concorda com estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não utilize nossa plataforma.</p>
+      
+      <h3>1.2 Elegibilidade</h3>
+      <p>Você deve ser maior de 18 anos ou ter autorização dos pais/responsáveis para utilizar nossa plataforma. Ao criar uma conta, você declara ser maior de idade ou ter autorização para utilizar o serviço.</p>
+      
+      <h3>1.3 Conta de Usuário</h3>
+      <ul>
+        <li>Você é responsável por manter a confidencialidade de sua conta e senha</li>
+        <li>Você concorda em aceitar responsabilidade por todas as atividades que ocorram sob sua conta</li>
+        <li>Você deve notificar imediatamente qualquer uso não autorizado de sua conta</li>
+        <li>A GiftCard Netlify se reserva o direito de suspender ou encerrar contas que violem estes termos</li>
+      </ul>
+
+      <div class="highlight-box warning">
+        <p><strong>Importante:</strong> É proibido criar múltiplas contas para burlar limites ou obter vantagens indevidas. A violação desta regra resultará em bloqueio imediato de todas as contas.</p>
+      </div>
+    </section>
+
+    <!-- 2. POLÍTICA DE PRIVACIDADE -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        2. Política de Privacidade
+      </h2>
+      
+      <p>Sua privacidade é importante para nós. Esta seção descreve como coletamos, usamos e protegemos suas informações.</p>
+      
+      <h3>2.1 Coleta de Informações</h3>
+      <p>Coletamos as seguintes informações:</p>
+      <ul>
+        <li><strong>Informações pessoais:</strong> Nome completo, CPF, e-mail, telefone e endereço</li>
+        <li><strong>Informações de pagamento:</strong> Dados de cartão de crédito ou outras formas de pagamento (processados de forma segura)</li>
+        <li><strong>Dados de navegação:</strong> IP, tipo de dispositivo, navegador e páginas acessadas</li>
+        <li><strong>Histórico de transações:</strong> Registro de compras e vendas realizadas</li>
+      </ul>
+      
+      <h3>2.2 Uso das Informações</h3>
+      <p>Utilizamos suas informações para:</p>
+      <ul>
+        <li>Processar e entregar seus Gift Cards</li>
+        <li>Comunicar atualizações sobre pedidos</li>
+        <li>Prevenir fraudes e garantir a segurança da plataforma</li>
+        <li>Cumprir obrigações legais e fiscais</li>
+        <li>Melhorar nossos serviços e experiência do usuário</li>
+      </ul>
+      
+      <h3>2.3 Proteção de Dados</h3>
+      <p>Adotamos medidas de segurança para proteger suas informações:</p>
+      <ul>
+        <li>Criptografia SSL em todas as transações</li>
+        <li>Armazenamento seguro de dados em servidores protegidos</li>
+        <li>Acesso restrito apenas a funcionários autorizados</li>
+        <li>Monitoramento constante contra acessos não autorizados</li>
+      </ul>
+
+      <div class="highlight-box">
+        <p><strong>LGPD:</strong> Estamos em conformidade com a Lei Geral de Proteção de Dados (Lei 13.709/2018). Você tem direito de acessar, corrigir ou excluir seus dados pessoais a qualquer momento.</p>
+      </div>
+    </section>
+
+    <!-- 3. POLÍTICA DE COMPRA -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        3. Política de Compra
+      </h2>
+      
+      <h3>3.1 Como Comprar</h3>
+      <ul>
+        <li>Selecione o Gift Card desejado e o valor</li>
+        <li>Adicione ao carrinho e prossiga para o checkout</li>
+        <li>Preencha seus dados e forma de pagamento</li>
+        <li>Após confirmação do pagamento, o código será enviado por e-mail</li>
+      </ul>
+      
+      <h3>3.2 Descontos e Promoções</h3>
+      <p>Oferecemos descontos especiais dependendo da forma de pagamento:</p>
+      <ul>
+        <li><strong>PIX:</strong> Desconto de 15% em Gift Cards selecionados</li>
+        <li><strong>Cartão de Crédito:</strong> Desconto de 2.4% a 15% conforme a plataforma</li>
+        <li>Os descontos são aplicados automaticamente no checkout</li>
+      </ul>
+      
+      <h3>3.3 Entrega dos Códigos</h3>
+      <ul>
+        <li>Os códigos são enviados imediatamente após a confirmação do pagamento</li>
+        <li>O envio é feito para o e-mail cadastrado na compra</li> <li>Verifique sua caixa de entrada e spam/lixo eletrônico</li>
+        <li>Em caso de não recebimento em até 24h, entre em contato com nosso suporte</li>
+      </ul>
+      
+      <h3>3.4 Validação dos Códigos</h3>
+      <div class="highlight-box warning">
+        <p><strong>Atenção:</strong> Após o envio do código, a responsabilidade pela guarda e uso é inteiramente do cliente. Códigos já enviados não podem ser cancelados ou reembolsados, exceto em casos de defeito comprovado.</p>
+      </div>
+    </section>
+
+    <!-- 4. POLÍTICA DE VENDA -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        4. Política de Venda (SUSPENSA)
+      </h2>
+      
+      <div class="highlight-box warning">
+        <p><strong>⚠️ Atenção:</strong> A funcionalidade de venda de Gift Cards está temporariamente suspensa devido a práticas de arbitragem identificadas. Usuários estavam comprando Gift Cards em outras plataformas por preços inferiores e revendendo para nós por valores mais altos, caracterizando uso indevido da plataforma.</p>
+      </div>
+      
+      <h3>4.1 Motivo da Suspensão</h3>
+      <p>Identificamos que alguns usuários estavam utilizando nossa plataforma de forma inadequada, comprando Gift Cards baratos em outras plataformas e revendendo para nós com lucro, o que prejudica nossa operação e nossos clientes.</p>
+      
+      <h3>4.2 Quando Retornará?</h3>
+      <p>A funcionalidade retornará após a implementação de novas medidas de segurança e verificação. Acompanhe nossas redes sociais para atualizações.</p>
+    </section>
+
+    <!-- 5. POLÍTICA DE REEMBOLSO -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        5. Política de Reembolso
+      </h2>
+      
+      <h3>5.1 Quando é Possível Solicitar Reembolso</h3>
+      <p>O reembolso só será concedido nas seguintes situações:</p>
+      <ul>
+        <li><strong>Código inválido ou já utilizado:</strong> Quando o código enviado não funcionar na plataforma destino</li>
+        <li><strong>Valor incorreto:</strong> Quando o valor do Gift Card for diferente do comprado</li>
+        <li><strong>Duplicidade:</strong> Quando o mesmo código for enviado mais de uma vez por erro do sistema</li>
+        <li><strong>Produto não entregue:</strong> Quando o código não for enviado em até 24h após confirmação do pagamento</li>
+      </ul>
+      
+      <h3>5.2 Quando NÃO é Possível Reembolso</h3>
+      <div class="highlight-box warning">
+        <p>Não realizamos reembolso nos seguintes casos:</p>
+        <ul style="margin-top: 10px; margin-bottom: 0;">
+          <li>Arrependimento da compra após recebimento do código</li>
+          <li>Código já utilizado ou resgatado</li>
+          <li>Compra por engano (verifique antes de confirmar)</li>
+          <li>Uso do código em plataforma diferente da contratada</li>
+          <li>Perda ou extravio do e-mail com o código (sempre verifique spam)</li>
+        </ul>
+      </div>
+      
+      <h3>5.3 Como Solicitar Reembolso</h3>
+      <ul>
+        <li>Entre em contato através do e-mail: <strong>suporte@giftcardnetlify.com.br</strong></li>
+        <li>Informe o número do pedido e motivo da solicitação</li>
+        <li>Anexe prints ou evidências do problema</li>
+        <li>Aguardamos análise em até 5 dias úteis</li>
+      </ul>
+      
+      <h3>5.4 Prazo de Reembolso</h3>
+      <p>Após aprovação, o reembolso será processado:</p>
+      <ul>
+        <li><strong>Cartão de crédito:</strong> Em até 2 faturas (dependendo da operadora)</li>
+        <li><strong>PIX:</strong> Em até 24 horas úteis</li>
+        <li><strong>Boleto:</strong> Em até 5 dias úteis (via TED)</li>
+      </ul>
+    </section>
+
+    <!-- 6. DIREITOS E OBRIGAÇÕES -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        6. Direitos e Obrigações
+      </h2>
+      
+      <h3>6.1 Direitos da GiftCard Netlify</h3>
+      <ul>
+        <li>Recusar ou cancelar pedidos suspeitos de fraude</li>
+        <li>Suspender contas que violem estes termos</li>
+        <li>Alterar preços e descontos sem aviso prévio</li>
+        <li>Modificar estes termos a qualquer momento</li>
+        <li>Solicitar documentos para verificação de identidade</li>
+      </ul>
+      
+      <h3>6.2 Obrigações do Cliente</h3>
+      <ul>
+        <li>Fornecer informações verdadeiras e atualizadas</li>
+        <li>Não utilizar a plataforma para fins ilegais</li>
+        <li>Não tentar burlar sistemas de segurança</li>
+        <li>Não criar múltiplas contas para obter vantagens</li>
+        <li>Verificar os dados antes de confirmar a compra</li>
+        <li>Guardar os códigos recebidos com segurança</li>
+      </ul>
+      
+      <h3>6.3 Proibições</h3>
+      <div class="highlight-box warning">
+        <p>É estritamente proibido:</p>
+        <ul style="margin-top: 10px; margin-bottom: 0;">
+          <li>Utilizar Gift Cards para atividades ilegais</li>
+          <li>Revender códigos comprados em nossa plataforma</li>
+          <li>Praticar arbitragem (comprar barato fora e vender caro aqui)</li>
+          <li>Tentar clonar ou falsificar Gift Cards</li>
+          <li>Utilizar dados de terceiros sem autorização</li>
+          <li>Fazer chargeback indevido (compra confirmada e código entregue)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 7. SUPORTE E CONTATO -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        7. Suporte e Contato
+      </h2>
+      
+      <p>Estamos à disposição para ajudar:</p>
+      
+      <h3>7.1 Canais de Atendimento</h3>
+      <ul>
+        <li><strong>E-mail:</strong> suporte@giftcardnetlify.com.br</li>
+        <li><strong>WhatsApp:</strong> (11) 99999-9999</li>
+        <li><strong>Horário de Atendimento:</strong> Segunda a Sexta, das 9h às 18h</li>
+      </ul>
+      
+      <h3>7.2 Prazo de Resposta</h3>
+      <ul>
+        <li><strong>E-mail:</strong> Até 24 horas úteis</li>
+        <li><strong>WhatsApp:</strong> Até 2 horas em horário comercial</li>
+        <li><strong>Reembolsos:</strong> Análise em até 5 dias úteis</li>
+      </ul>
+      
+      <div class="highlight-box success">
+        <p><strong>Dica:</strong> Antes de entrar em contato, verifique se o código não está no seu spam/lixo eletrônico. A maioria dos casos de "não recebimento" são resolvidos verificando esta pasta.</p>
+      </div>
+    </section>
+
+    <!-- 8. DISPOSIÇÕES GERAIS -->
+    <section class="policy-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        8. Disposições Gerais
+      </h2>
+      
+      <h3>8.1 Alterações nos Termos</h3>
+      <p>Reservamo-nos o direito de modificar estes termos a qualquer momento. As alterações entram em vigor imediatamente após publicação. O uso continuado da plataforma implica aceitação dos novos termos.</p>
+      
+      <h3>8.2 Legislação Aplicável</h3>
+      <p>Estes termos são regidos pelas leis da República Federativa do Brasil. Eventuais disputas serão resolvidas no foro da comarca de São Paulo/SP.</p>
+      
+      <h3>8.3 Responsabilidade</h3>
+      <p>A GiftCard Netlify não se responsabiliza por:</p>
+      <ul>
+        <li>Uso indevido dos códigos após entrega</li>
+        <li>Problemas nas plataformas dos Gift Cards (Google, Netflix, etc.)</li>
+        <li>Perda de códigos por falha do cliente em guardar o e-mail</li>
+        <li>Variações de preços nas plataformas externas</li>
+      </ul>
+      
+      <h3>8.4 Propriedade Intelectual</h3>
+      <p>Todos os direitos de propriedade intelectual da plataforma pertencem à GiftCard Netlify. É proibida a reprodução total ou parcial sem autorização prévia.</p>
+    </section>
+
+    <div class="highlight-box" style="text-align: center; margin-top: 30px;">
+      <p><strong>Em caso de dúvidas sobre estes termos, entre em contato antes de utilizar a plataforma.</strong></p>
+      <p style="margin-top: 10px; margin-bottom: 0;">Ao utilizar nossos serviços, você declara ter lido e aceito todos os termos acima.</p>
+    </div>
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>Dados da Empresa</h4>
+          <p><strong>Razão Social:</strong> RI Comercio de Presente e Utilidades Ltda</p>
+          <p><strong>CNPJ:</strong> 09.271.959/0001-36</p>
+          <p><strong>Fundação:</strong> 21/11/2007</p>
+          <p style="margin-top: 10px;"><strong>Endereço:</strong><br>Rua Hemisferio, 257<br>Chacara Belenzinho<br>Sao Paulo - SP<br>CEP: 03.375-000</p>
+        </div>
+      </div>
+      
+      <!-- Ícones de Pagamento -->
+      <div class="footer-payments">
+        <h4>Formas de Pagamento</h4>
+        <div class="payment-badges">
+          <div class="payment-badge" title="Visa">
+            <img src="visa.sxIq5Dot.svg" alt="Visa" onerror="this.style.display='none'">
+          </div>
+          <div class="payment-badge" title="Mastercard">
+            <img src="mastercard.1c4_lyMp.svg" alt="Mastercard" onerror="this.style.display='none'">
+          </div>
+          <div class="payment-badge" title="Elo">
+            <img src="elo.KvOdnY_5.svg" alt="Elo" onerror="this.style.display='none'">
+          </div>
+          <div class="payment-badge" title="PIX">
+            <img src="pix.BiPKIIQK.svg" alt="PIX" onerror="this.style.display='none'">
+          </div>
+        </div>
+        
+        <!-- Ícones de Segurança -->
+        <div class="security-badges">
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Ambiente Seguro</span>
+          </div>
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>SSL Certificado</span>
+          </div>
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Pagamento Verificado</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>CNAE G-4761-0/03 - Comércio varejista de artigos de papelaria</p>
+        <p>&copy; 2026 RI Comercio de Presente e Utilidades Ltda. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function toggleSearch() { 
+      document.getElementById('searchContainer').classList.toggle('active'); 
+    }
+  </script>
+</body>
+</html>

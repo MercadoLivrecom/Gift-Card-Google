@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - GiftCard Netlify</title>
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  <style>
+    :root {
+      --gold: #FFD700;
+      --gold-dark: #C5A000;
+      --gold-light: #FFF3C4;
+      --black: #0A0A0A;
+      --black-soft: #1A1A1A;
+      --primary: #EA1D2C;
+      --success: #38B03F;
+      --bg: #F7F7F7;
+      --card: #FFFFFF;
+      --text: #212225;
+      --text-light: #767676;
+      --radius: 12px;
+      --paypal-blue: #0070BA;
+      --pix-green: #32BCAD;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--card); padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-bottom: 1px solid #eee; height: 60px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .menu-btn { background: none; border: none; cursor: pointer; color: var(--text); padding: 4px; display: flex; align-items: center; justify-content: center; }
+    .menu-btn svg { width: 26px; height: 26px; }
+    .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .brand svg { width: 28px; height: 28px; color: var(--primary); }
+    .brand h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); white-space: nowrap; }
+    .brand span { color: var(--primary); }
+    .header-icons { display: flex; align-items: center; gap: 4px; }
+    .icon-btn { background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); }
+    .icon-btn:hover { background: #f0f0f0; }
+    .icon-btn svg { width: 24px; height: 24px; }
+    .cart-wrapper { position: relative; }
+    .cart-badge { position: absolute; top: 0; right: 0; background: var(--primary); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); transform: scale(0); transition: transform 0.2s; }
+    .cart-badge.show { transform: scale(1); }
+
+    .search-container {
+      position: absolute; top: 60px; left: 0; right: 0; background: var(--card);
+      padding: 10px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 99;
+      transform: translateY(-100%); transition: transform 0.3s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-container.active { transform: translateY(0); }
+    .search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: #f0f0f0; padding: 8px 12px; border-radius: 8px; }
+    .search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.95rem; }
+    .search-close { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 1.2rem; }
+
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 300px; background: var(--card); z-index: 201; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 2px 0 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, var(--black), var(--black-soft)); color: var(--gold); }
+    .sidebar-header h2 { font-size: 1.1rem; font-weight: 800; }
+    .close-sidebar { background: rgba(255,215,0,0.15); border: none; font-size: 1.3rem; cursor: pointer; color: var(--gold); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .close-sidebar:hover { background: rgba(255,215,0,0.25); }
+    .sidebar-search { padding: 16px; border-bottom: 1px solid #f0f0f0; }
+    .sidebar-search-box { display: flex; align-items: center; gap: 8px; background: #f5f5f5; padding: 10px 14px; border-radius: 10px; border: 1px solid #e0e0e0; }
+    .sidebar-search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.9rem; color: var(--text); }
+    .sidebar-search-box svg { width: 18px; height: 18px; color: var(--text-light); flex-shrink: 0; }
+    .sidebar-links { padding: 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+    .sidebar-link { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); padding: 14px 16px; border-radius: 10px; transition: all 0.2s; font-weight: 500; font-size: 0.95rem; }
+    .sidebar-link:hover { background: #f9f9f9; color: var(--primary); }
+    .sidebar-link svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .sidebar-divider { height: 1px; background: #eee; margin: 8px 16px; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid #eee; background: #fafafa; }
+    .sidebar-footer p { font-size: 0.75rem; color: var(--text-light); text-align: center; }
+
+    /* LOGIN PAGE */
+    .login-container {
+      max-width: 450px;
+      margin: 60px auto;
+      padding: 0 20px;
+      flex: 1;
+    }
+    
+    .login-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+    
+    .login-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--primary), #ff4757);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(234, 29, 44, 0.3);
+    }
+    
+    .login-icon svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+    
+    .login-header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    
+    .login-header p {
+      color: var(--text-light);
+      font-size: 0.95rem;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+      background: #fafafa;
+    }
+    
+    .form-input:focus {
+      border-color: var(--primary);
+      background: white;
+    }
+    
+    .form-input::placeholder {
+      color: #bbb;
+    }
+    
+    .password-wrapper {
+      position: relative;
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .password-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .btn-login {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary), #c41826);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(234, 29, 44, 0.4);
+    }
+    
+    .login-divider {
+      display: flex;
+      align-items: center;
+      margin: 25px 0;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    
+    .login-divider::before,
+    .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0e0e0;
+    }
+    
+    .login-divider span {
+      padding: 0 15px;
+    }
+    
+    .btn-create-account {
+      width: 100%;
+      padding: 16px;
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-create-account:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .login-footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+    
+    .login-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* MODAL DE CRIAR CONTA */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 300;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .modal-content {
+      background: var(--card);
+      width: 100%;
+      max-width: 500px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 30px;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .modal-header h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    
+    .modal-close {
+      background: #f0f0f0;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+    }
+    
+    .modal-close:hover {
+      background: #e0e0e0;
+    }
+    
+    .modal-form .form-group {
+      margin-bottom: 18px;
+    }
+    
+    .btn-submit-account {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--success), #2d9a34);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    
+    .btn-submit-account:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 176, 63, 0.4);
+    }
+
+    /* TOAST NOTIFICATION */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, var(--primary), #c41826);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(234, 29, 44, 0.4);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateX(150%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width: 400px;
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast svg {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    
+    .toast-content h4 {
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+    
+    .toast-content p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    /* RODAPÉ */
+    .site-footer {
+      background: var(--black);
+      color: #a0a0a0;
+      padding: 40px 16px 25px;
+      margin-top: auto;
+      font-size: 0.85rem;
+      border-top: 1px solid #222;
+    }
+    .footer-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin-bottom: 25px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid #222;
+    }
+    .footer-col {
+      min-width: 100%;
+    }
+    .footer-col h4 {
+      color: var(--gold);
+      margin-bottom: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+    .footer-col p {
+      margin-bottom: 6px;
+      line-height: 1.5;
+      color: #ccc;
+    }
+    .footer-col strong {
+      color: white;
+      font-weight: 600;
+    }
+    
+    .footer-payments {
+      margin: 25px 0;
+      padding: 20px 0;
+      border-top: 1px solid #222;
+      border-bottom: 1px solid #222;
+    }
+    .footer-payments h4 {
+      color: var(--gold);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .payment-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+    .payment-badge {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: none;
+      width: 80px;
+      height: 50px;
+      overflow: visible;
+    }
+    .payment-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .payment-badge svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .security-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #38B03F;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(56, 176, 63, 0.15);
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+    .security-badge svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+    }
+    .footer-bottom p {
+      font-size: 0.75rem;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .footer-bottom .cnae {
+      font-size: 0.7rem;
+      color: #555;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .login-container {
+        margin: 40px auto;
+      }
+      .login-card {
+        padding: 30px 20px;
+      }
+      .toast {
+        right: 15px;
+        left: 15px;
+        bottom: 15px;
+        max-width: calc(100% - 30px);
+      }
+      .modal-content {
+        padding: 25px 20px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .login-header h1 {
+        font-size: 1.4rem;
+      }
+      .payment-badge { width: 65px; height: 45px; }
+      .security-badge { font-size: 0.75rem; padding: 6px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="brand" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <h1>Gift<span>Card</span> Netlify</h1>
+      </div>
+    </div>
+    <div class="header-icons">
+      <button class="icon-btn" onclick="toggleSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" onclick="window.location.href='login.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+      <button class="icon-btn" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="search-container" id="searchContainer">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:#767676"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Pesquisar produtos...">
+    </div>
+    <button class="search-close" onclick="toggleSearch()">✕</button>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Menu</h2>
+      <button class="close-sidebar" onclick="toggleMenu()">✕</button>
+    </div>
+    <div class="sidebar-search">
+      <div class="sidebar-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="sidebarSearchInput" placeholder="Buscar produtos...">
+      </div>
+    </div>
+    <div class="sidebar-links">
+      <a href="login.html" class="sidebar-link" style="background: #f9f9f9; color: var(--primary);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Meu Perfil
+      </a>
+      <a href="index.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Comprar Gift Cards
+      </a>
+      <a href="Gift.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Vender Gift Card
+      </a>
+      <a href="politicas.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Políticas de Uso
+      </a>
+      <a href="reembolso.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Reembolso
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-link" onclick="toggleSearch(); toggleMenu(); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Buscar Produtos
+      </a>
+    </div>
+    <div class="sidebar-footer"><p>GiftCard Netlify 2026</p></div>
+  </div>
+
+  <!-- LOGIN PAGE -->
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h1>Entrar na sua conta</h1>
+        <p>Acesse para gerenciar seus pedidos e Gift Cards</p>
+      </div>
+      
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">E-mail, Telefone ou Usuário</label>
+          <input type="text" class="form-input" id="loginIdentifier" placeholder="Digite seu e-mail, telefone ou usuário" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <div class="password-wrapper">
+            <input type="password" class="form-input" id="loginPassword" placeholder="Digite sua senha" required>
+            <button type="button" class="password-toggle" onclick="togglePassword()">
+              <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-login">Entrar</button>
+      </form>
+      
+      <div class="login-divider">
+        <span>ou</span>
+      </div>
+      
+      <button class="btn-create-account" onclick="openCreateAccount()">
+        Criar Conta
+      </button>
+      
+      <div class="login-footer">
+        <p>Ao entrar, você concorda com nossos <a href="politicas.html">Termos de Uso</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CRIAR CONTA -->
+  <div class="modal-overlay" id="createAccountModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Criar Conta</h2>
+        <button class="modal-close" onclick="closeCreateAccount()">✕</button>
+      </div>
+      
+      <form class="modal-form" id="createAccountForm" onsubmit="handleCreateAccount(event)">
+        <div class="form-group">
+          <label class="form-label">Nome Completo</label>
+          <input type="text" class="form-input" placeholder="Digite seu nome completo" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-input" placeholder="Digite seu e-mail" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input type="tel" class="form-input" placeholder="(00) 00000-0000">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Usuário</label>
+          <input type="text" class="form-input" placeholder="Escolha um nome de usuário" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" class="form-input" placeholder="Crie uma senha segura" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Confirmar Senha</label>
+          <input type="password" class="form-input" placeholder="Confirme sua senha" required>
+        </div>
+        
+        <button type="submit" class="btn-submit-account">
+          Criar Conta
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <div class="toast-content">
+      <h4>Erro: Conta não encontrada</h4>
+      <p>O e-mail ou senha informados não correspondem a nenhuma conta. Crie uma nova conta para continuar.</p>
+    </div>
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>Dados da Empresa</h4>
+          <p><strong>Razão Social:</strong> RI Comercio de Presente e Utilidades Ltda</p>
+          <p><strong>CNPJ:</strong> 09.271.959/0001-36</p>
+          <p><strong>Fundação:</strong> 21/11/2007</p>
+          <p style="margin-top: 10px;"><strong>Endereço:</strong><br>Rua Hemisferio, 257<br>Chacara Belenzinho<br>Sao Paulo - SP<br>CEP: 03.375-000</p>
+        </div>
+      </div>
+      
+      <!-- Ícones de Pagamento -->
+      <div class="footer-payments">
+        <h4>Formas de Pagamento</h4>
+        <div class="payment-badges">
+          <div class="payment-badge" title="Visa">
+            <img src="visa.sxIq5Dot.svg" alt="Visa" onerror="this.style.display='none'">
+          </div>
+          <div class="payment-badge" title="Mastercard">
+            <img src="mastercard.1c4_lyMp.svg" alt="Mastercard" onerror="this.style.display='none'">
+          </div>
+          <div class="payment-badge" title="Elo">
+            <img src="elo.KvOdnY_5.svg" alt="Elo" onerror="this.style.display='none'">
+          </div>
+          <div class="payment-badge" title="PIX">
+            <img src="pix.BiPKIIQK.svg" alt="PIX" onerror="this.style.display='none'">
+          </div>
+        </div>
+        
+        <!-- Ícones de Segurança -->
+        <div class="security-badges">
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Ambiente Seguro</span>
+          </div>
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>SSL Certificado</span>
+          </div>
+          <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Pagamento Verificado</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>CNAE G-4761-0/03 - Comércio varejista de artigos de papelaria</p>
+        <p>&copy; 2026 RI Comercio de Presente e Utilidades Ltda. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function toggleSearch() { 
+      document.getElementById('searchContainer').classList.toggle('active'); 
+    }
+
+    function togglePassword() {
+      const passwordInput = document.getElementById('loginPassword');
+      const eyeIcon = document.getElementById('eyeIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      
+      const toast = document.getElementById('toast');
+      toast.classList.remove('show');
+      
+      setTimeout(() => {
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+          
+          // Redireciona para a página inicial após mostrar o erro
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 500);
+        }, 4000);
+      }, 100);
+    }
+
+    function openCreateAccount() {
+      document.getElementById('createAccountModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCreateAccount() {
+      document.getElementById('createAccountModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleCreateAccount(event) {
+      event.preventDefault();
+      
+      // Fecha o modal e redireciona para a página inicial
+      closeCreateAccount();
+      
+      // Redireciona para a página inicial para comprar produtos
+      window.location.href = 'index.html';
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('createAccountModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCreateAccount();
+      }
+    });
+  </script>
+</body>
+</html>
