@@ -1,431 +1,710 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checkout - GiftCard Netlify</title>
+  <title>Checkout - GiftCardSale</title>
+  <meta name="description" content="Complete your purchase at GiftCardSale">
+  
   <link rel="icon" type="image/webp" href="fasvcom.webp">
+  
   <style>
     :root {
-      --gold: #FFD700;
-      --black: #0A0A0A;
-      --black-soft: #1A1A1A;
       --primary: #EA1D2C;
+      --primary-dark: #C41826;
       --success: #38B03F;
       --bg: #F7F7F7;
       --card: #FFFFFF;
       --text: #212225;
       --text-light: #767676;
+      --radius: 12px;
+      --usd-highlight: #22c55e;
+      --brl-highlight: #0d9488;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
     
-    /* HEADER */
-    header { background: var(--card); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-bottom: 1px solid #eee; height: 60px; }
-    .header-left { display: flex; align-items: center; gap: 12px; }
-    .menu-btn { background: none; border: none; cursor: pointer; color: var(--text); padding: 4px; }
-    .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .brand svg { width: 28px; height: 28px; color: var(--primary); }
-    .brand h1 { font-size: 1.1rem; font-weight: 800; }
-    .brand span { color: var(--primary); }
-    .header-icons { display: flex; align-items: center; gap: 4px; }
-    .icon-btn { background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; }
-    .icon-btn svg { width: 24px; height: 24px; color: var(--text); }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-    /* LAYOUT CHECKOUT */
-    .checkout-container { max-width: 1100px; margin: 30px auto; padding: 0 16px; flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-    .checkout-card { background: var(--card); border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .section-title svg { width: 24px; height: 24px; color: var(--gold); }
-    .order-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #eee; }
+    /* HEADER SIMPLES */
+    .checkout-header {
+      background: var(--card);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-bottom: 1px solid #eee;
+      height: 60px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: #f0f0f0; }
+    .back-btn svg { width: 24px; height: 24px; }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .header-logo svg { width: 28px; height: 28px; color: var(--primary); }
+    .header-logo h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .header-logo h1 span { color: var(--primary); }
+
+    /* CONTAINER PRINCIPAL */
+    .checkout-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      padding-bottom: 100px;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title svg { width: 24px; height: 24px; color: var(--primary); }
+
+    /* FORMULÁRIO */
+    .form-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #eee;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group:last-child { margin-bottom: 0; }
+    
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s;
+      background: #f9fafb;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(234,29,44,0.1);
+    }
+    .form-input:disabled {
+      background: #f0f0f0;
+      color: var(--text-light);
+    }
+
+    .phone-input-wrapper {
+      display: flex;
+      gap: 10px;
+    }
+    .country-code-select {
+      width: 100px;
+      padding: 14px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: #f9fafb;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .country-code-select:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(234,29,44,0.1);
+    }
+
+    /* ITENS DO PEDIDO */
+    .order-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #eee;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px dashed #eee;
+    }
     .order-item:last-child { border-bottom: none; }
-    .item-name { font-weight: 600; font-size: 0.95rem; }
-    .item-price { font-weight: 700; color: var(--success); }
-    .order-total { margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; }
 
-    /* FORMULÁRIOS */
-    .form-group { margin-bottom: 20px; }
-    .form-label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
-    .form-input { width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; outline: none; transition: border 0.3s; }
-    .form-input:focus { border-color: var(--primary); }
-    
-    /* GRID DE PAGAMENTO */
-    .payment-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px; }
-    .payment-option { position: relative; cursor: pointer; }
-    .payment-option input { position: absolute; opacity: 0; pointer-events: none; }
-    .payment-box { background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; height: 100%; }
-    .payment-option input:checked + .payment-box { border-color: var(--primary); background: #fff5f6; }
-    .payment-box svg { width: 24px; height: 24px; }
-    .payment-label { font-weight: 600; font-size: 0.9rem; line-height: 1.3; }
-    .payment-option.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-    .payment-option.disabled .payment-box { background: #f0f0f0; border-color: #ddd; }
-
-    /* BOTÃO FINALIZAR */
-    .btn-checkout { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), #c41826); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(234, 29, 44, 0.4); }
-
-    /* ================= MODAL CARTÃO ================= */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
+    .order-item-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: #f9fafb;
+      padding: 8px;
+      flex-shrink: 0;
     }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    
-    .modal-content {
-      background: white; width: 100%; max-width: 450px; border-radius: 20px;
-      padding: 30px; transform: translateY(50px); transition: transform 0.3s;
-      max-height: 90vh; overflow-y: auto; position: relative;
-    }
-    .modal-overlay.active .modal-content { transform: translateY(0); }
-    
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-header h2 { font-size: 1.4rem; }
-    .close-modal { background: #f0f0f0; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
-    
-    .card-row { display: flex; gap: 10px; }
-    .card-row .form-group { flex: 1; }
-    
-    .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-    .btn-save { width: 100%; padding: 14px; background: #212225; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
-    .btn-save:disabled { background: #ccc; cursor: not-allowed; }
-    
-    .btn-finalize { 
-      width: 100%; padding: 14px; background: var(--success); color: white; 
-      border: none; border-radius: 10px; font-weight: 700; cursor: pointer; 
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      opacity: 0.5; pointer-events: none; transition: 0.3s;
-    }
-    .btn-finalize.active { opacity: 1; pointer-events: auto; }
-    .btn-finalize:hover { transform: translateY(-2px); }
 
-    .status-msg { text-align: center; font-size: 0.9rem; margin-top: 5px; color: var(--text-light); }
-    .status-msg.success { color: var(--success); font-weight: bold; }
-    .status-msg.error { color: var(--primary); font-weight: bold; }
+    .order-item-info { flex: 1; }
+    .order-item-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    .order-item-detail {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
 
-    /* RODAPÉ */
-    .site-footer { background: var(--black); color: #a0a0a0; padding: 30px 16px; text-align: center; margin-top: auto; font-size: 0.8rem; border-top: 1px solid #222; }
-    
-    @media (max-width: 768px) {
-      .checkout-container { grid-template-columns: 1fr; }
-      .payment-grid { grid-template-columns: 1fr; }
+    .order-item-price {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .order-item-total {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--usd-highlight);
+    }
+    .order-item-qty {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    .order-divider {
+      height: 2px;
+      background: #eee;
+      margin: 16px 0;
+    }
+
+    .order-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .order-total-label {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+    .order-total-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--success);
+    }
+
+    /* ✅ BOTÃO FLUTUANTE DO CARRINHO ✅ */
+    .floating-checkout {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 16px 32px;
+      border-radius: 50px;
+      box-shadow: 0 8px 32px rgba(234,29,44,0.4);
+      cursor: pointer;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.3s;
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      width: 90%;
+      max-width: 400px;
+    }
+    .floating-checkout:hover {
+      transform: translateX(-50%) translateY(-4px);
+      box-shadow: 0 12px 40px rgba(234,29,44,0.5);
+    }
+    .floating-checkout:active {
+      transform: translateX(-50%) translateY(0);
+    }
+    .floating-checkout svg {
+      width: 24px;
+      height: 24px;
+    }
+    .floating-total {
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    /* RODAPÉ SIMPLES */
+    .checkout-footer {
+      text-align: center;
+      padding: 20px 16px;
+      background: var(--card);
+      border-top: 1px solid #eee;
+      margin-top: 20px;
+    }
+    .checkout-footer p {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin: 0;
+    }
+    .checkout-footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      animation: slideIn 0.3s ease;
+      pointer-events: auto;
+      border-left: 4px solid var(--success);
+    }
+    .toast.error { border-left-color: var(--primary); }
+    .toast.success { border-left-color: var(--success); }
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(400px); opacity: 0; }
+    }
+    .toast.hiding { animation: slideOut 0.3s ease forwards; }
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .toast.success .toast-icon { background: #d4edda; color: var(--success); }
+    .toast.error .toast-icon { background: #f8d7da; color: var(--primary); }
+    .toast-icon svg { width: 16px; height: 16px; }
+    .toast-content { flex: 1; }
+    .toast-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+    .toast-message { font-size: 0.85rem; color: var(--text-light); }
+
+    /* LOADING */
+    .btn-loading {
+      position: relative;
+      color: transparent !important;
+      pointer-events: none;
+    }
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .checkout-container { padding: 16px 12px; padding-bottom: 90px; }
+      .form-section, .order-section { padding: 20px 16px; }
+      .toast { min-width: 260px; }
+      .floating-checkout {
+        bottom: 16px;
+        padding: 14px 24px;
+        width: 95%;
+      }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="header-left">
-      <button class="menu-btn" onclick="window.history.back()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </button>
-      <div class="brand" onclick="window.location.href='index.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <h1>Gift<span>Card</span> Netlify</h1>
-      </div>
-    </div>
-    <div class="header-icons">
-      <button class="icon-btn" onclick="window.location.href='index.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-      </button>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- HEADER SIMPLES - SEM BUSCA, PERFIL, CARRINHO -->
+  <header class="checkout-header">
+    <button class="back-btn" onclick="window.history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="header-logo" onclick="window.location.href='index.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <!-- ✅ LOGO NÃO TRADUZÍVEL ✅ -->
+      <h1 class="notranslate" translate="no">giftcard<span>sale</span></h1>
     </div>
   </header>
 
   <div class="checkout-container">
-    <!-- Resumo -->
-    <div class="checkout-card">
-      <h2 class="section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-        Resumo do Pedido
-      </h2>
-      <div id="order-items"></div>
-      <div class="order-total">
-        <span>Total</span>
-        <span id="order-total-value">R$ 0,00</span>
-      </div>
+    
+    <!-- TÍTULO -->
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+        <line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
+      Checkout
     </div>
 
-    <!-- Pagamento -->
-    <div class="checkout-card">
-      <h2 class="section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Dados de Envio & Pagamento
-      </h2>
+    <!-- FORMULÁRIO DE DADOS -->
+    <div class="form-section">
+      <h3 style="font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--primary)">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Your Information
+      </h3>
       
-      <form id="checkoutForm" onsubmit="handleCheckout(event)">
-        <div class="form-group">
-          <label class="form-label">E-mail para envio do código</label>
-          <input type="email" class="form-input" id="userEmail" placeholder="seu@email.com" required>
-        </div>
-
-        <label class="form-label">Escolha a forma de pagamento</label>
-        <div class="payment-grid">
-          <label class="payment-option">
-            <input type="radio" name="payment" value="whatsapp" onchange="checkSelection()">
-            <div class="payment-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              <span class="payment-label">Finalizar no WhatsApp</span>
-            </div>
-          </label>
-
-          <label class="payment-option">
-            <input type="radio" name="payment" value="pix" onchange="checkSelection()">
-            <div class="payment-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#32BCAD" stroke-width="2"><path d="M12 2L6 8l6 6 6-6-6-6zM6 16l6 6 6-6"/><circle cx="12" cy="12" r="3"/></svg>
-              <span class="payment-label">Finalizar via PIX</span>
-            </div>
-          </label>
-
-          <label class="payment-option">
-            <input type="radio" name="payment" value="cartao" onchange="openCardModal()">
-            <div class="payment-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0033A0" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-              <span class="payment-label">Pagar com Cartão de Crédito</span>
-            </div>
-          </label>
-
-          <label class="payment-option disabled">
-            <input type="radio" name="payment" value="googlepay" disabled>
-            <div class="payment-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#4285F4" stroke-width="2"><path d="M12 2a10 10 0 0 0-8.5 15.3L3 22l4.7-1.2A10 10 0 1 0 12 2z"/></svg>
-              <span class="payment-label">Pagar com Google Pay</span>
-            </div>
-          </label>
-
-          <label class="payment-option disabled">
-            <input type="radio" name="payment" value="carteira" disabled>
-            <div class="payment-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M20 7h-7L11 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 13h4"/></svg>
-              <span class="payment-label">Pagar com Carteira</span>
-            </div>
-          </label>
-        </div>
-
-        <button type="submit" class="btn-checkout" id="btnSubmit">
-          <span>Continuar para Pagamento</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL DE CARTÃO -->
-  <div class="modal-overlay" id="cardModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Dados do Cartão</h2>
-        <button class="close-modal" onclick="closeCardModal()">✕</button>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" id="checkName" class="form-input" placeholder="Enter your full name" required>
       </div>
-      
-      <div id="cardFormContainer">
-        <div class="form-group">
-          <label class="form-label">Número do Cartão</label>
-          <input type="tel" id="cardNumber" class="form-input" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" oninput="formatCard(this)">
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Nome no Cartão</label>
-          <input type="text" id="cardName" class="form-input" placeholder="NOME COMO NO CARTÃO" style="text-transform: uppercase;">
-        </div>
-        
-        <div class="card-row">
-          <div class="form-group">
-            <label class="form-label">Validade</label>
-            <input type="tel" id="cardExpiry" class="form-input" placeholder="MM/AA" maxlength="5" inputmode="numeric" oninput="formatExpiry(this)">
-          </div>
-          <div class="form-group">
-            <label class="form-label">CVV</label>
-            <input type="tel" id="cardCvv" class="form-input" placeholder="123" maxlength="3" inputmode="numeric">
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">CPF do Titular</label>
-          <input type="tel" id="cardCpf" class="form-input" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" oninput="formatCPF(this)">
-        </div>
 
-        <div class="form-group">
-          <label class="form-label">Parcelamento</label>
-          <select id="installments" class="form-input" style="background: white;">
-            <!-- Gerado via JS -->
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" id="checkEmail" class="form-input" placeholder="Enter your email" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <div class="phone-input-wrapper">
+          <select id="checkCountryCode" class="country-code-select">
+            <!-- ✅ BANDEIRAS CORRETAS ✅ -->
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+55">🇧🇷 +55</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+86">🇨🇳 +86</option>
+            <option value="+91">🇮🇳 +91</option>
           </select>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-save" id="btnSaveCard" onclick="saveCardData()">Salvar Dados</button>
-          <div id="cardStatus" class="status-msg"></div>
-          
-          <button class="btn-finalize" id="btnFinalize" onclick="finalizePayment()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-            Finalizar Pagamento
-          </button>
+          <input type="tel" id="checkPhone" class="form-input" placeholder="(000) 000-0000" maxlength="14">
         </div>
       </div>
     </div>
+
+    <!-- ITENS DO PEDIDO -->
+    <div class="order-section">
+      <h3 style="font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--primary)">
+          <circle cx="9" cy="21" r="1"/>
+          <circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        Order Summary
+      </h3>
+      
+      <div id="orderItems"></div>
+      
+      <div class="order-divider"></div>
+      
+      <div class="order-total-row">
+        <span class="order-total-label">Total to Pay:</span>
+        <span class="order-total-value" id="orderTotal">$0.00</span>
+      </div>
+    </div>
+
   </div>
 
-  <footer class="site-footer">
-    <p>CNAE G-4761-0/03 - Comércio varejista de artigos de papelaria</p>
-    <p>&copy; 2026 RI Comercio de Presente e Utilidades Ltda. Todos os direitos reservados.</p>
+  <!-- ✅ BOTÃO FLUTUANTE COM TOTAL ✅ -->
+  <button class="floating-checkout" id="floatingCheckout" onclick="finalizeCheckout()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+      <line x1="1" y1="10" x2="23" y2="10"/>
+    </svg>
+    <span class="floating-total" id="floatingTotal">$0.00</span>
+  </button>
+
+  <!-- RODAPÉ SIMPLES -->
+  <footer class="checkout-footer">
+    <p>© 2026 <a href="https://www.giftcardsale.shop">giftcardsale.shop</a> - All Rights Reserved</p>
+    <p style="margin-top: 4px; font-size: 0.7rem;">🔒 Secure checkout • Instant delivery</p>
   </footer>
 
   <script>
-    // Decodificar dados da URL
-    const params = new URLSearchParams(window.location.search);
-    const itemsEncoded = params.get('items');
-    let totalValue = parseFloat(params.get('total') || '0.00');
+    let cartItems = [];
+    let currencySymbol = '$';
+    let countryCode = 'US';
 
-    let items = [];
-    try { items = JSON.parse(decodeURIComponent(escape(atob(itemsEncoded)))); } catch (e) {}
+    // ✅ MAPEAMENTO DE IMAGENS POR ID DO PRODUTO ✅
+    const productImages = {
+      'googleplay-20': 'Goo.webp', 'googleplay-50': 'Goo.webp', 'googleplay-100': 'Goo.webp', 'googleplay-150': 'Goo.webp',
+      'apple-20': 'Apple.webp', 'apple-50': 'Apple.webp', 'apple-100': 'Apple.webp', 'apple-200': 'Apple.webp',
+      'steam-20': 'steam.webp', 'steam-50': 'steam.webp', 'steam-100': 'steam.webp', 'steam-200': 'steam.webp',
+      'roblox-20': 'Roblox.webp', 'roblox-50': 'Roblox.webp', 'roblox-100': 'Roblox.webp', 'roblox-200': 'Roblox.webp',
+      'xbox-20': 'Xbox.webp', 'xbox-50': 'Xbox.webp', 'xbox-100': 'Xbox.webp', 'xbox-200': 'Xbox.webp',
+      'paypal-20': 'PayPal.webp', 'paypal-50': 'PayPal.webp', 'paypal-100': 'PayPal.webp', 'paypal-200': 'PayPal.webp',
+      'netflix-basic': 'Netflix1.webp', 'netflix-standard': 'Netflix1.webp', 'netflix-premium': 'Netflix1.webp', 'netflix-150': 'Netflix1.webp'
+    };
 
-    // Renderizar itens
-    const itemsContainer = document.getElementById('order-items');
-    if(items.length > 0) {
-      itemsContainer.innerHTML = items.map(item => `
-        <div class="order-item">
-          <div>
-            <div class="item-name">${item.name}</div>
-            <div class="item-qty">Qtd: ${item.qty}</div>
-          </div>
-          <div class="item-price">R$ ${item.price.toFixed(2)}</div>
-        </div>
-      `).join('');
-      document.getElementById('order-total-value').textContent = `R$ ${totalValue.toFixed(2)}`;
-    } else {
-      itemsContainer.innerHTML = '<p style="color:var(--text-light); padding:20px 0; text-align:center">Nenhum item.</p>';
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCartFromURL();
+      loadUserInfoFromURL();
+      setupPhoneFormatting();
+      updateFloatingButton();
+    });
+
+    // ✅ CARREGA ITENS DO CARRINHO DA URL ✅
+    function loadCartFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const itemsParam = params.get('items');
+      const totalParam = params.get('total');
+      const countryParam = params.get('country');
+
+      if (countryParam) {
+        countryCode = countryParam;
+        currencySymbol = countryParam === 'US' ? '$' : 'R$';
+      }
+
+      if (itemsParam) {
+        try {
+          const parsedItems = JSON.parse(atob(itemsParam));
+          cartItems = parsedItems.map(item => ({
+            ...item,
+            img: productImages[item.id] || 'https://via.placeholder.com/60x60?text=Card'
+          }));
+        } catch (e) { cartItems = []; }
+      }
+
+      renderOrderItems();
+      const total = totalParam ? parseFloat(totalParam) : cartItems.reduce((sum, i) => sum + (i.price * i.qty), 0);
+      document.getElementById('orderTotal').textContent = `${currencySymbol}${total.toFixed(2)}`;
+      updateFloatingButton();
     }
 
-    // Formatação de Inputs
-    function formatCard(input) {
-      let v = input.value.replace(/\D/g, '');
-      v = v.replace(/(\d{4})/g, '$1 ').trim();
-      input.value = v;
-    }
-    function formatExpiry(input) {
-      let v = input.value.replace(/\D/g, '');
-      if(v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
-      input.value = v;
-    }
-    function formatCPF(input) {
-      let v = input.value.replace(/\D/g, '');
-      v = v.replace(/(\d{3})(\d)/, '$1.$2');
-      v = v.replace(/(\d{3})(\d)/, '$1.$2');
-      v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-      input.value = v;
-    }
+    // ✅ CARREGA DADOS DO USUÁRIO DA URL ✅
+    function loadUserInfoFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const name = params.get('name');
+      const email = params.get('email');
+      const phone = params.get('phone');
 
-    // Algoritmo de Luhn (Validação de Cartão)
-    function isValidCard(number) {
-      let s = number.replace(/\D/g, '');
-      if(s.length < 13 || s.length > 19) return false;
-      let sum = 0;
-      let isEven = false;
-      for(let i = s.length - 1; i >= 0; i--) {
-        let digit = parseInt(s.charAt(i));
-        if(isEven) {
-          digit *= 2;
-          if(digit > 9) digit -= 9;
+      const nameInput = document.getElementById('checkName');
+      const emailInput = document.getElementById('checkEmail');
+      const phoneInput = document.getElementById('checkPhone');
+
+      if (name && email) {
+        nameInput.value = decodeURIComponent(name);
+        nameInput.disabled = true;
+        nameInput.style.background = '#f0f0f0';
+        nameInput.style.cursor = 'default';
+
+        emailInput.value = decodeURIComponent(email);
+        emailInput.disabled = true;
+        emailInput.style.background = '#f0f0f0';
+        emailInput.style.cursor = 'default';
+
+        if (phone) {
+          const decodedPhone = decodeURIComponent(phone);
+          const phoneParts = decodedPhone.split(' ');
+          if (phoneParts.length >= 2) {
+            document.getElementById('checkCountryCode').value = phoneParts[0];
+            const phoneNum = phoneParts.slice(1).join(' ').replace(/\D/g, '');
+            let formatted = '';
+            if (phoneNum.length <= 3) formatted = phoneNum;
+            else if (phoneNum.length <= 6) formatted = `(${phoneNum.slice(0, 3)}) ${phoneNum.slice(3)}`;
+            else formatted = `(${phoneNum.slice(0, 3)}) ${phoneNum.slice(3, 6)}-${phoneNum.slice(6)}`;
+            phoneInput.value = formatted;
+          }
         }
-        sum += digit;
-        isEven = !isEven;
+
+        phoneInput.disabled = true;
+        phoneInput.style.background = '#f0f0f0';
+        phoneInput.style.cursor = 'default';
+        document.getElementById('checkCountryCode').disabled = true;
+        document.getElementById('checkCountryCode').style.background = '#f0f0f0';
+        document.getElementById('checkCountryCode').style.cursor = 'default';
+      } else {
+        nameInput.disabled = false;
+        emailInput.disabled = false;
+        phoneInput.disabled = false;
+        document.getElementById('checkCountryCode').disabled = false;
       }
-      return (sum % 10) === 0;
     }
 
-    // Abrir Modal e Gerar Parcelas
-    function openCardModal() {
-      document.getElementById('cardModal').classList.add('active');
-      const installSelect = document.getElementById('installments');
-      installSelect.innerHTML = '';
+    // ✅ RENDERIZA ITENS DO PEDIDO ✅
+    function renderOrderItems() {
+      const container = document.getElementById('orderItems');
       
-      // 1x, 2x, 3x sem juros
-      for(let i = 1; i <= 3; i++) {
-        let val = totalValue / i;
-        let opt = document.createElement('option');
-        opt.value = i;
-        opt.text = `${i}x de R$ ${val.toFixed(2)} Sem Juros (Total: R$ ${totalValue.toFixed(2)})`;
-        installSelect.appendChild(opt);
-      }
-    }
-
-    function closeCardModal() {
-      document.getElementById('cardModal').classList.remove('active');
-      // Deselecionar rádio se fechar
-      document.querySelector('input[name="payment"][value="cartao"]').checked = false;
-      document.getElementById('btnFinalize').classList.remove('active');
-    }
-
-    // Salvar e Validar
-    function saveCardData() {
-      const number = document.getElementById('cardNumber').value;
-      const name = document.getElementById('cardName').value;
-      const expiry = document.getElementById('cardExpiry').value;
-      const cvv = document.getElementById('cardCvv').value;
-      const cpf = document.getElementById('cardCpf').value;
-      const statusEl = document.getElementById('cardStatus');
-      const btnFinalize = document.getElementById('btnFinalize');
-      const btnSave = document.getElementById('btnSaveCard');
-
-      if(!number || !name || !expiry || !cvv || !cpf) {
-        statusEl.textContent = 'Preencha todos os campos.';
-        statusEl.className = 'status-msg error';
+      if (cartItems.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:30px;color:var(--text-light);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;margin-bottom:12px;opacity:0.3;">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <p>No items in your cart</p>
+            <a href="index.html" style="color:var(--primary);text-decoration:none;font-weight:600;margin-top:8px;display:inline-block;">← Back to shop</a>
+          </div>
+        `;
         return;
       }
 
-      if(!isValidCard(number)) {
-        statusEl.textContent = 'Cartão inválido. Verifique o número.';
-        statusEl.className = 'status-msg error';
-        return;
-      }
-
-      // Se chegou aqui, salvou
-      statusEl.textContent = 'Dados salvos com sucesso!';
-      statusEl.className = 'status-msg success';
-      btnFinalize.classList.add('active');
-      
-      // Simular desabilitar inputs para indicar que salvou
-      const inputs = document.querySelectorAll('#cardFormContainer input, #cardFormContainer select');
-      inputs.forEach(i => i.disabled = true);
-      btnSave.disabled = true;
-      btnSave.textContent = 'Dados Salvos ✓';
+      container.innerHTML = cartItems.map(item => {
+        const itemTotal = item.price * item.qty;
+        return `
+          <div class="order-item">
+            <img class="order-item-img" src="${item.img}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60x60?text=Card'">
+            <div class="order-item-info">
+              <div class="order-item-name">${item.name || 'Gift Card'}</div>
+              <div class="order-item-detail">Qty: ${item.qty} × ${currencySymbol}${item.price.toFixed(2)}</div>
+            </div>
+            <div class="order-item-price">
+              <div class="order-item-total">${currencySymbol}${itemTotal.toFixed(2)}</div>
+              <div class="order-item-qty">x${item.qty}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    // Finalizar e Redirecionar
-    function finalizePayment() {
-      const data = {
-        number: document.getElementById('cardNumber').value.replace(/\s/g, ''),
-        name: document.getElementById('cardName').value,
-        expiry: document.getElementById('cardExpiry').value,
-        cvv: document.getElementById('cardCvv').value,
-        cpf: document.getElementById('cardCpf').value,
-        installments: document.getElementById('installments').value,
-        total: totalValue
+    // ✅ FORMATAÇÃO DO TELEFONE ✅
+    function setupPhoneFormatting() {
+      const phoneInput = document.getElementById('checkPhone');
+      phoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) value = value.slice(0, 10);
+        let formatted = '';
+        if (value.length > 0) {
+          if (value.length <= 3) formatted = value;
+          else if (value.length <= 6) formatted = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+          else formatted = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`;
+        }
+        e.target.value = formatted;
+      });
+    }
+
+    // ✅ ATUALIZAR BOTÃO FLUTUANTE ✅
+    function updateFloatingButton() {
+      const floatingBtn = document.getElementById('floatingCheckout');
+      const floatingTotal = document.getElementById('floatingTotal');
+      const total = cartItems.reduce((sum, i) => sum + (i.price * i.qty), 0);
+      
+      if (cartItems.length > 0) {
+        floatingBtn.style.display = 'flex';
+        floatingTotal.textContent = `${currencySymbol}${total.toFixed(2)}`;
+      } else {
+        floatingBtn.style.display = 'none';
+      }
+    }
+
+    // ✅ FINALIZAR CHECKOUT ✅
+    function finalizeCheckout() {
+      const name = document.getElementById('checkName').value.trim();
+      const email = document.getElementById('checkEmail').value.trim();
+      const phoneCode = document.getElementById('checkCountryCode').value;
+      const phone = document.getElementById('checkPhone').value.trim();
+
+      if (cartItems.length === 0) { showToast('Your cart is empty!', 'error'); return; }
+      if (!name) { showToast('Please enter your name.', 'error'); document.getElementById('checkName').focus(); return; }
+      if (!email || !email.includes('@')) { showToast('Please enter a valid email.', 'error'); document.getElementById('checkEmail').focus(); return; }
+      if (!phone || phone.replace(/\D/g, '').length < 7) { showToast('Please enter a valid phone number.', 'error'); document.getElementById('checkPhone').focus(); return; }
+
+      const btn = document.getElementById('floatingCheckout');
+      btn.classList.add('btn-loading');
+      btn.innerHTML = '<span style="color:transparent">Processing...</span>';
+
+      const total = cartItems.reduce((sum, i) => sum + (i.price * i.qty), 0);
+      const fullPhone = `${phoneCode} ${phone}`;
+
+      const checkoutData = {
+        name: encodeURIComponent(name),
+        email: encodeURIComponent(email),
+        phone: encodeURIComponent(fullPhone),
+        items: btoa(JSON.stringify(cartItems)),
+        total: total.toFixed(2),
+        country: countryCode
       };
-      
-      const queryString = Object.keys(data).map(key => key + '=' + encodeURIComponent(data[key])).join('&');
-      window.location.href = `cartao.html?${queryString}`;
+
+      const paymentURL = `payment.html?name=${checkoutData.name}&email=${checkoutData.email}&phone=${checkoutData.phone}&items=${checkoutData.items}&total=${checkoutData.total}&country=${checkoutData.country}`;
+
+      setTimeout(() => {
+        btn.classList.remove('btn-loading');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span class="floating-total">${currencySymbol}${total.toFixed(2)}</span>`;
+        showToast('Redirecting to payment...', 'success');
+        setTimeout(() => { window.location.href = paymentURL; }, 1000);
+      }, 1500);
     }
 
-    // Handle Submit do Form Principal (Para WhatsApp/PIX)
-    function handleCheckout(e) {
-      e.preventDefault();
-      const payment = document.querySelector('input[name="payment"]:checked');
-      if(!payment || payment.value === 'cartao') return; // Se for cartão, o modal trata
-
-      const email = document.getElementById('userEmail').value;
-      if(!email) { alert('Digite seu e-mail'); return; }
-      
-      const method = payment.value;
-      const redirectUrl = `${method}.html?total=${totalValue}&email=${encodeURIComponent(email)}&items=${encodeURIComponent(itemsEncoded)}`;
-      window.location.href = redirectUrl;
-    }
-    
-    function checkSelection() {
-      // Função auxiliar para garantir que o modal feche se trocar de opção
-      if(!document.querySelector('input[name="payment"][value="cartao"]').checked) {
-        closeCardModal();
-      }
+    // ✅ TOAST NOTIFICATIONS ✅
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'success' 
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      const title = type === 'success' ? 'Success!' : 'Error';
+      toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('hiding'); toast.addEventListener('animationend', () => toast.remove()); }, 3000);
     }
   </script>
+
 </body>
 </html>

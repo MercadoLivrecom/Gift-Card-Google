@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USDT Payment - GiftCardSale</title>
+  
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  
+  <style>
+    :root {
+      --primary: #F0B90B; /* Binance Yellow */
+      --primary-dark: #c49400;
+      --bg-dark: #181A20;
+      --bg-card: #2B3139;
+      --text-main: #EAECEF;
+      --text-sub: #848E9C;
+      --success: #0ECB81;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg-dark); 
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .page-header {
+      background: var(--bg-card);
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #363C46;
+    }
+    .header-logo { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .header-logo svg { width: 24px; height: 24px; color: var(--primary); }
+    .header-logo h1 { font-size: 1.2rem; font-weight: 700; color: white; }
+    .header-logo h1 span { color: var(--primary); }
+
+    /* CONTAINER */
+    .page-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* LOADING SCREEN */
+    .loading-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg-dark);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s;
+    }
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .spinner-crypto {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--bg-card);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loading-text { font-size: 1rem; color: var(--text-sub); }
+
+    /* CARD DE PAGAMENTO */
+    .payment-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      border: 1px solid #363C46;
+    }
+
+    .payment-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .payment-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 20px;
+    }
+
+    .qr-container {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+    .qr-container img {
+      width: 180px;
+      height: 180px;
+      display: block;
+    }
+
+    .amount-display {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 24px;
+    }
+
+    /* DADOS DA CARTEIRA */
+    .wallet-info {
+      background: #1E2329;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .info-row {
+      margin-bottom: 12px;
+    }
+    .info-row:last-child { margin-bottom: 0; }
+    .info-label {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .info-value {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      font-weight: 500;
+      word-break: break-all;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .copy-btn {
+      background: var(--bg-card);
+      border: 1px solid #474D57;
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: #363C46; }
+
+    .warning-text {
+      font-size: 0.8rem;
+      color: #F6465D;
+      margin-top: 16px;
+      text-align: left;
+      background: rgba(246, 70, 93, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    /* RESUMO DO PEDIDO */
+    .order-summary {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid #363C46;
+    }
+    .summary-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #363C46;
+      padding-bottom: 12px;
+    }
+    .customer-data p {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: var(--text-sub);
+    }
+    .customer-data strong { color: var(--text-main); }
+    
+    .items-list {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed #363C46;
+    }
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+    .item-name { color: var(--text-sub); }
+    .item-price { color: var(--text-main); font-weight: 600; }
+
+    @media (max-width: 480px) {
+      .page-container { padding: 16px 12px; }
+      .payment-card { padding: 20px 16px; }
+      .qr-container img { width: 150px; height: 150px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- OVERLAY DE CARREGAMENTO -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-crypto"></div>
+    <p class="loading-text">Gerando chave de pagamento com a carteira...</p>
+  </div>
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <h1 class="notranslate" translate="no">giftcard<span>sale</span></h1>
+    </div>
+  </header>
+
+  <div class="page-container">
+    
+    <!-- CARD DE PAGAMENTO USDT -->
+    <div class="payment-card">
+      <h2 class="payment-title">Depositar USDT na Binance</h2>
+      <p class="payment-subtitle">Escaneie o QR Code ou copie o endereço abaixo</p>
+      
+      <div class="qr-container">
+        <img src="qr.jpg" alt="QR Code USDT" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x861fac41fa2e3c3ffe99f4f21a3d0df73c354b53'">
+      </div>
+
+      <div class="amount-display" id="amountDisplay">$0.00 USDT</div>
+
+      <div class="wallet-info">
+        <div class="info-row">
+          <span class="info-label">Rede</span>
+          <div class="info-value">BNB Smart Chain (BEP20)</div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Endereço da Carteira</span>
+          <div class="info-value">
+            <span id="walletAddress">0x861fac41fa2e3c3ffe99f4f21a3d0df73c354b53</span>
+            <button class="copy-btn" onclick="copyToClipboard('walletAddress')">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="warning-text">
+        ⚠️ Não envie NFTs para este endereço. Envie apenas USDT na rede BEP20.
+      </div>
+    </div>
+
+    <!-- RESUMO DO PEDIDO -->
+    <div class="order-summary">
+      <h3 class="summary-title">Order Details</h3>
+      <div class="customer-data">
+        <p><strong>Name:</strong> <span id="custName">-</span></p>
+        <p><strong>Email:</strong> <span id="custEmail">-</span></p>
+        <p><strong>Phone:</strong> <span id="custPhone">-</span></p>
+      </div>
+      <div class="items-list" id="itemsList">
+        <!-- Itens serão inseridos via JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Configurações
+    const WALLET_ADDRESS = '0x861fac41fa2e3c3ffe99f4f21a3d0df73c354b53';
+    const EXCHANGE_RATE = 5.0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Simular loading por 2.5 segundos
+      setTimeout(() => {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+      }, 2500);
+
+      processPaymentData();
+    });
+
+    function processPaymentData() {
+      const params = new URLSearchParams(window.location.search);
+      
+      // 1. Processar Valor
+      let total = parseFloat(params.get('total')) || 0;
+      const country = params.get('country') || 'US';
+      
+      // Se vier do Brasil (BRL), converte para USD/USDT
+      if (country === 'BR') {
+        total = total / EXCHANGE_RATE;
+      }
+      
+      document.getElementById('amountDisplay').textContent = `${total.toFixed(2)} USDT`;
+
+      // 2. Preencher Dados do Cliente
+      document.getElementById('custName').textContent = decodeURIComponent(params.get('name') || '-');
+      document.getElementById('custEmail').textContent = decodeURIComponent(params.get('email') || '-');
+      document.getElementById('custPhone').textContent = decodeURIComponent(params.get('phone') || '-');
+
+      // 3. Processar Itens do Pedido
+      const itemsParam = params.get('items');
+      const itemsContainer = document.getElementById('itemsList');
+      
+      if (itemsParam) {
+        try {
+          const items = JSON.parse(atob(itemsParam));
+          let html = '';
+          items.forEach(item => {
+            let itemPrice = item.price * item.qty;
+            // Se for BR, mostra o preço unitário original em BRL no resumo, mas o total já foi convertido lá em cima para o display principal
+            // Opcional: converter o preço unitário do item também se quiser consistência
+            let displayPrice = country === 'BR' ? (itemPrice / EXCHANGE_RATE) : itemPrice;
+            let symbol = country === 'BR' ? '$' : '$'; // Ambos usam $ no contexto USDT
+            
+            html += `
+              <div class="item-row">
+                <span class="item-name">${item.name} (x${item.qty})</span>
+                <span class="item-price">${symbol}${displayPrice.toFixed(2)}</span>
+              </div>
+            `;
+          });
+          itemsContainer.innerHTML = html;
+        } catch (e) {
+          console.error('Erro ao processar itens', e);
+        }
+      }
+    }
+
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(`button[onclick="copyToClipboard('${elementId}')"]`);
+        const originalText = btn.textContent;
+        btn.textContent = 'Copiado!';
+        btn.style.color = 'var(--success)';
+        btn.style.borderColor = 'var(--success)';
+        
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

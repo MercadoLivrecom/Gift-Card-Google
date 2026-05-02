@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Approved - GiftCardSale</title>
+  
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  
+  <style>
+    :root {
+      --primary: #EA1D2C;
+      --primary-dark: #C41826;
+      --success: #38B03F;
+      --bg: #F7F7F7;
+      --card: #FFFFFF;
+      --text: #212225;
+      --text-light: #767676;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .page-header {
+      background: var(--card);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--border);
+      height: 60px;
+    }
+    .header-logo { display: flex; align-items: center; gap: 8px; }
+    .header-logo svg { width: 28px; height: 28px; color: var(--primary); }
+    .header-logo h1 { font-size: 1.1rem; font-weight: 700; }
+    .header-logo h1 span { color: var(--primary); }
+
+    /* CONTAINER */
+    .page-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* TELA DE CARREGAMENTO */
+    .loading-screen {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #eee;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .loading-text {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    /* TELA DE SUCESSO (inicialmente oculta) */
+    .success-screen {
+      display: none;
+    }
+    .success-screen.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARD DE SUCESSO */
+    .success-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .success-icon {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--success), #2e8b32);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .success-icon svg { width: 36px; height: 36px; color: white; }
+    .success-card h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .success-card p {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    /* SEÇÃO DO GIFT CARD */
+    .giftcard-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    .giftcard-section h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .giftcard-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .giftcard-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    
+    .giftcard-image {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      margin: 0 auto 16px;
+      display: block;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      padding: 12px;
+    }
+    
+    .giftcard-name {
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    
+    .giftcard-value {
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .giftcard-value-label {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.8rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .giftcard-value-amount {
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    /* CÓDIGO DO GIFT CARD */
+    .code-container {
+      background: rgba(255,255,255,0.95);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    
+    .code-display {
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text);
+      flex: 1;
+      text-align: center;
+    }
+    .code-display.blurred {
+      filter: blur(6px);
+      user-select: none;
+      cursor: pointer;
+    }
+    
+    .code-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .code-btn {
+      background: none;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      color: var(--text-light);
+    }
+    .code-btn:hover {
+      background: #f0f0f0;
+      color: var(--primary);
+    }
+    .code-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* INSTRUÇÕES */
+    .instructions {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 16px;
+    }
+    .instructions h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #166534;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .instructions ol {
+      font-size: 0.85rem;
+      color: #15803d;
+      padding-left: 18px;
+      line-height: 1.5;
+    }
+    .instructions li { margin-bottom: 4px; }
+
+    /* BOTÃO FINAL */
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    /* LOGO NO TOPO */
+    .header-logo { display: flex; align-items: center; gap: 8px; }
+    .header-logo svg { width: 28px; height: 28px; color: var(--primary); }
+    .header-logo h1 { font-size: 1.1rem; font-weight: 700; }
+    .header-logo h1 span { color: var(--primary); }
+
+    @media (max-width: 480px) {
+      .page-container { padding: 16px 12px; }
+      .success-card, .giftcard-section { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <h1 class="notranslate" translate="no">giftcard<span>sale</span></h1>
+    </div>
+  </header>
+
+  <div class="page-container">
+    
+    <!-- TELA DE CARREGAMENTO -->
+    <div class="loading-screen" id="loadingScreen">
+      <div class="loading-spinner"></div>
+      <h2 class="loading-title">Processing Payment...</h2>
+      <p class="loading-text">Please wait while we verify your transaction. Do not close this window.</p>
+    </div>
+
+    <!-- TELA DE SUCESSO -->
+    <div class="success-screen" id="successScreen">
+      
+      <!-- CARD DE SUCESSO -->
+      <div class="success-card">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+        </div>
+        <h2>Payment Approved!</h2>
+        <p>Your payment has been successfully processed. Follow your order below.</p>
+      </div>
+
+      <!-- SEÇÃO DO GIFT CARD -->
+      <div class="giftcard-section">
+        <h3>Your Gift Card</h3>
+        
+        <div class="giftcard-card">
+          <!-- IMAGEM DO GIFT CARD (Google Play como exemplo) -->
+          <img class="giftcard-image" src="Goo.webp" alt="Gift Card" onerror="this.src='https://via.placeholder.com/200x120?text=Gift+Card'">
+          
+          <div class="giftcard-name">Google Play Gift Card</div>
+          
+          <div class="giftcard-value">
+            <span class="giftcard-value-label">Value</span>
+            <span class="giftcard-value-amount">R$ 50,00</span>
+          </div>
+          
+          <!-- CÓDIGO COM BLUR E BOTÕES -->
+          <div class="code-container">
+            <span class="code-display blurred" id="giftCode">GO51 NVBU UYFX 9ZZJ</span>
+            <div class="code-actions">
+              <!-- BOTÃO OLHO (revelar código) -->
+              <button class="code-btn" id="toggleBtn" onclick="toggleCode()" title="Show/Hide code">
+                <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg id="eyeOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+              <!-- BOTÃO COPIAR (sem notificação) -->
+              <button class="code-btn" onclick="copyCode()" title="Copy code">
+                <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <svg id="checkIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- INSTRUÇÕES -->
+        <div class="instructions">
+          <h4>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            How to use:
+          </h4>
+          <ol>
+            <li>Open Google Play Store on your device</li>
+            <li>Tap Menu → Redeem</li>
+            <li>Enter the code shown above</li>
+            <li>Enjoy your balance instantly!</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- BOTÃO FINAL -->
+      <button class="btn-primary" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Continue Shopping
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+    // ✅ CÓDIGO DO GIFT CARD
+    const GIFT_CODE = 'GO51 NVBU UYFX 9ZZJ';
+    let isCodeVisible = false;
+
+    // ✅ INICIALIZAÇÃO
+    document.addEventListener('DOMContentLoaded', function() {
+      // Após 3 segundos, esconde loading e mostra sucesso
+      setTimeout(() => {
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('successScreen').classList.add('active');
+      }, 3000);
+    });
+
+    // ✅ TOGGLE: MOSTRAR/OCULTAR CÓDIGO
+    function toggleCode() {
+      const codeDisplay = document.getElementById('giftCode');
+      const eyeIcon = document.getElementById('eyeIcon');
+      const eyeOffIcon = document.getElementById('eyeOffIcon');
+      
+      isCodeVisible = !isCodeVisible;
+      
+      if (isCodeVisible) {
+        codeDisplay.classList.remove('blurred');
+        eyeIcon.style.display = 'none';
+        eyeOffIcon.style.display = 'block';
+      } else {
+        codeDisplay.classList.add('blurred');
+        eyeIcon.style.display = 'block';
+        eyeOffIcon.style.display = 'none';
+      }
+    }
+
+    // ✅ COPIAR CÓDIGO (SEM NOTIFICAÇÃO)
+    function copyCode() {
+      navigator.clipboard.writeText(GIFT_CODE).then(() => {
+        // Muda o ícone para check por 1.5 segundos
+        const copyIcon = document.getElementById('copyIcon');
+        const checkIcon = document.getElementById('checkIcon');
+        
+        copyIcon.style.display = 'none';
+        checkIcon.style.display = 'block';
+        
+        setTimeout(() => {
+          copyIcon.style.display = 'block';
+          checkIcon.style.display = 'none';
+        }, 1500);
+        
+        // ✅ SEM TOAST/NOTIFICAÇÃO conforme solicitado
+      });
+    }
+  </script>
+
+</body>
+</html>
