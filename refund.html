@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund Policy - GiftCardSale</title>
+  
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  
+  <style>
+    :root {
+      --primary: #EA1D2C;
+      --primary-dark: #C41826;
+      --success: #38B03F;
+      --warning: #F59E0B;
+      --bg: #F7F7F7;
+      --card: #FFFFFF;
+      --text: #212225;
+      --text-light: #767676;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* HEADER - NÃO TRADUZÍVEL */
+    .page-header {
+      background: var(--card);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--border);
+      height: 60px;
+    }
+    .back-btn {
+      background: none; border: none; cursor: pointer; color: var(--text);
+      padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .back-btn:hover { background: #f0f0f0; }
+    .back-btn svg { width: 24px; height: 24px; }
+    .header-logo { display: flex; align-items: center; gap: 8px; }
+    .header-logo svg { width: 28px; height: 28px; color: var(--primary); }
+    .header-logo h1 { font-size: 1.1rem; font-weight: 700; }
+    .header-logo h1 span { color: var(--primary); }
+
+    /* CONTAINER */
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+      color: var(--text);
+    }
+    .page-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .last-updated {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    /* SECTIONS */
+    .policy-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    .policy-section h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 10px;
+    }
+    .policy-section h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+    .policy-section p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+    .policy-section ul {
+      margin: 12px 0 12px 24px;
+      font-size: 0.95rem;
+      color: var(--text-light);
+    }
+    .policy-section li { margin-bottom: 6px; }
+
+    /* HIGHLIGHT BOXES */
+    .policy-section .critical {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-left: 5px solid var(--primary);
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+      color: #991b1b;
+    }
+    .policy-section .critical strong { font-weight: 800; }
+    
+    .policy-section .info {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-left: 5px solid #0284c7;
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+      color: #0c4a6e;
+    }
+
+    .policy-section .success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 5px solid var(--success);
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+      color: #166534;
+    }
+
+    /* CONTACT BOX */
+    .contact-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+      text-align: center;
+    }
+    .contact-box h4 { font-size: 1rem; font-weight: 700; color: #92400e; margin-bottom: 10px; }
+    .contact-box a {
+      display: inline-block;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .contact-box a:hover { background: #fff5d9; transform: translateY(-2px); }
+
+    /* TRANSLATOR NOTICE */
+    .translator-notice {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 30px;
+      font-size: 0.85rem;
+      color: #0369a1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .translator-notice svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; background: var(--card); color: var(--text);
+      border: 2px solid var(--border); border-radius: 12px;
+      font-weight: 600; font-size: 0.95rem; cursor: pointer;
+      text-decoration: none; transition: all 0.2s; margin-top: 20px;
+    }
+    .btn-back:hover { border-color: var(--primary); color: var(--primary); }
+
+    @media (max-width: 480px) {
+      .page-container { padding: 16px 12px; }
+      .policy-section { padding: 20px 16px; }
+      .page-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER - NÃO TRADUZÍVEL -->
+  <header class="page-header">
+    <button class="back-btn" onclick="window.history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <!-- ✅ LOGO NÃO TRADUZÍVEL ✅ -->
+      <h1 class="notranslate" translate="no">giftcard<span>sale</span></h1>
+    </div>
+  </header>
+
+  <div class="page-container">
+    
+    <h2 class="page-title">Refund Policy</h2>
+    <p class="page-subtitle">Please read our policy regarding returns and refunds carefully.</p>
+    <p class="last-updated">Last Updated: May 2026</p>
+
+    <!-- 1. GENERAL POLICY -->
+    <div class="policy-section">
+      <h3>1. General Policy: All Sales Final</h3>
+      <div class="critical">
+        <p><strong>All purchases of digital gift cards are final and non-refundable.</strong></p>
+      </div>
+      <p>Due to the immediate electronic nature of our products, once a code has been delivered to your email address, it is considered "consumed." We cannot verify if a code has been used or stored elsewhere after delivery.</p>
+      <p>Therefore, we <strong>do not</strong> offer refunds, returns, or exchanges for:</p>
+      <ul>
+        <li>Buyer's remorse or change of mind</li>
+        <li>Accidental purchases</li>
+        <li>Codes that you were unable to redeem due to user error</li>
+        <li>Codes redeemed on the wrong account or region</li>
+      </ul>
+    </div>
+
+    <!-- 2. EXCEPTIONS -->
+    <div class="policy-section">
+      <h3>2. Refund Exceptions</h3>
+      <p>A refund may be granted <strong>ONLY</strong> under the following strict conditions:</p>
+      
+      <div class="success">
+        <strong>Valid Reasons for Refund:</strong>
+        <ul style="margin: 8px 0 0 20px;">
+          <li>The code delivered was invalid/defective <strong>and</strong> has not been redeemed.</li>
+          <li>We delivered a code for the wrong platform (e.g., you bought Google Play but received Xbox).</li>
+          <li>We delivered a code for the wrong region despite the product listing clearly stating the correct region.</li>
+        </ul>
+      </div>
+
+      <p><strong>Proof Required:</strong> You must provide clear evidence (screenshots) showing the redemption failure error message from the official platform.</p>
+    </div>
+
+    <!-- 3. REGION LOCKS -->
+    <div class="policy-section">
+      <h3>3. Region Compatibility Responsibility</h3>
+      <div class="info">
+        <p><strong>Important:</strong> Most gift cards are region-locked. It is the customer's sole responsibility to ensure the gift card purchased matches their account's region.</p>
+      </div>
+      <p>If you purchase a US-region card and attempt to redeem it on a Brazilian account (or vice versa) and it fails, <strong>this does not qualify for a refund.</strong></p>
+      <p>Please check the product description carefully before completing your purchase.</p>
+    </div>
+
+    <!-- 4. HOW TO REQUEST -->
+    <div class="policy-section">
+      <h3>4. How to Submit a Request</h3>
+      <p>If you believe your case qualifies for an exception, please contact our support team immediately. Claims submitted more than <strong>24 hours</strong> after delivery will not be considered.</p>
+      
+      <p>Please include the following in your email:</p>
+      <ul>
+        <li>Your Order Number</li>
+        <li>The full code sent to you (do not partially hide it)</li>
+        <li>A screenshot of the error message from the official platform (Google, Steam, etc.)</li>
+      </ul>
+      
+      <div class="contact-box">
+        <h4>Contact Support</h4>
+        <a href="mailto:faq@kinguin.net" class="notranslate" translate="no">faq@kinguin.net</a>
+        <p style="margin-top: 8px; font-size: 0.85rem; color: #78350f;">Average response time: 24-48 hours</p>
+      </div>
+    </div>
+
+    <!-- 5. PROCESSING TIME -->
+    <div class="policy-section">
+      <h3>5. Processing Refunds</h3>
+      <p>Approved refunds are processed back to the original payment method within <strong>5-10 business days</strong>.</p>
+      <p>For cryptocurrency (USDT) payments, refunds are issued in USDT to the sending wallet address. Network fees may apply.</p>
+    </div>
+
+    <!-- TRANSLATOR NOTICE -->
+    <div class="translator-notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      <span>This document is in English. You can use Google Translate to view it in your preferred language.</span>
+    </div>
+
+    <a href="index.html" class="btn-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back to Store
+    </a>
+
+  </div>
+
+  <script>
+    // ✅ PREVENT TRANSLATION OF LOGO AND EMAILS
+    document.querySelectorAll('.notranslate').forEach(el => {
+      el.setAttribute('translate', 'no');
+    });
+  </script>
+
+</body>
+</html>

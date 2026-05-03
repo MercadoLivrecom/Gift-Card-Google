@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service - GiftCardSale</title>
+  
+  <link rel="icon" type="image/webp" href="fasvcom.webp">
+  
+  <style>
+    :root {
+      --primary: #EA1D2C;
+      --primary-dark: #C41826;
+      --success: #38B03F;
+      --bg: #F7F7F7;
+      --card: #FFFFFF;
+      --text: #212225;
+      --text-light: #767676;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* HEADER - NÃO TRADUZÍVEL */
+    .page-header {
+      background: var(--card);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--border);
+      height: 60px;
+    }
+    .back-btn {
+      background: none; border: none; cursor: pointer; color: var(--text);
+      padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .back-btn:hover { background: #f0f0f0; }
+    .back-btn svg { width: 24px; height: 24px; }
+    .header-logo { display: flex; align-items: center; gap: 8px; }
+    .header-logo svg { width: 28px; height: 28px; color: var(--primary); }
+    .header-logo h1 { font-size: 1.1rem; font-weight: 700; }
+    .header-logo h1 span { color: var(--primary); }
+
+    /* CONTAINER */
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+      color: var(--text);
+    }
+    .page-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .last-updated {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    /* CONTENT SECTIONS */
+    .terms-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    .terms-section h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text);
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--primary);
+    }
+    .terms-section h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+    .terms-section p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+    .terms-section ul {
+      margin: 12px 0 12px 24px;
+      font-size: 0.95rem;
+      color: var(--text-light);
+    }
+    .terms-section li {
+      margin-bottom: 6px;
+    }
+    .terms-section strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .terms-section .highlight {
+      background: #fff5f5;
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+    }
+    .terms-section .warning {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      color: #78350f;
+    }
+    .terms-section .success {
+      background: #f0fdf4;
+      border-left: 4px solid var(--success);
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      color: #15803d;
+    }
+
+    /* ACCORDION FOR SUBSECTIONS */
+    .accordion-item {
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .accordion-header {
+      width: 100%;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9fafb;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      transition: background 0.2s;
+    }
+    .accordion-header:hover { background: #f0f0f0; }
+    .accordion-header svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s;
+      color: var(--text-light);
+    }
+    .accordion-item.active .accordion-header svg {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      padding: 0 16px;
+      background: white;
+    }
+    .accordion-item.active .accordion-content {
+      max-height: 1000px;
+      padding: 16px;
+    }
+    .accordion-content p {
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    /* CONTACT BOX */
+    .contact-box {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+    .contact-box h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0369a1;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .contact-box p {
+      font-size: 0.9rem;
+      color: #0369a1;
+      margin-bottom: 8px;
+    }
+    .contact-box a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .contact-box a:hover { text-decoration: underline; }
+
+    /* TRANSLATOR NOTICE */
+    .translator-notice {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 30px;
+      font-size: 0.85rem;
+      color: #0369a1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .translator-notice svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* BUTTON */
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: 20px;
+    }
+    .btn-back:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    @media (max-width: 480px) {
+      .page-container { padding: 16px 12px; }
+      .terms-section { padding: 20px 16px; }
+      .page-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER - NÃO TRADUZÍVEL -->
+  <header class="page-header">
+    <button class="back-btn" onclick="window.history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <!-- ✅ LOGO NÃO TRADUZÍVEL ✅ -->
+      <h1 class="notranslate" translate="no">giftcard<span>sale</span></h1>
+    </div>
+  </header>
+
+  <div class="page-container">
+    
+    <h2 class="page-title">Terms of Service</h2>
+    <p class="page-subtitle">Please read these terms carefully before using our services</p>
+    <p class="last-updated">Last Updated: May 2026</p>
+
+    <!-- 1. ACCEPTANCE OF TERMS -->
+    <div class="terms-section">
+      <h3>1. Acceptance of Terms</h3>
+      <p>By accessing, browsing, or using <strong>giftcardsale.shop</strong> (the "Site"), you acknowledge that you have read, understood, and agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Site or purchase any products.</p>
+      <p>These Terms constitute a legally binding agreement between you ("User," "you," or "your") and GiftCard Sale LLC ("Company," "we," "us," or "our").</p>
+    </div>
+
+    <!-- 2. DIGITAL PRODUCTS DISCLAIMER -->
+    <div class="terms-section">
+      <h3>2. Nature of Digital Products</h3>
+      <p>All products sold on this Site are <strong>digital gift card codes</strong> delivered electronically. No physical items are shipped.</p>
+      
+      <div class="warning">
+        <strong>Important:</strong> Once a gift card code has been delivered to your email address, it is considered "consumed" for refund purposes, even if you have not yet redeemed it on the respective platform.
+      </div>
+      
+      <p>Gift cards are subject to the terms and conditions of their respective issuers (e.g., Google, Apple, Steam, Netflix). We are not affiliated with, endorsed by, or responsible for the policies of these third-party platforms.</p>
+    </div>
+
+    <!-- 3. NO REFUNDS POLICY -->
+    <div class="terms-section">
+      <h3>3. No Refunds Policy</h3>
+      
+      <div class="highlight">
+        <strong>All sales are final.</strong> Due to the digital and instantaneous nature of our products, we do not offer refunds, exchanges, or cancellations once a gift card code has been delivered to your email.
+      </div>
+
+      <h4>Exceptions (Case-by-Case Review):</h4>
+      <p>Refund requests may be considered ONLY if ALL of the following conditions are met:</p>
+      <ul>
+        <li>The request is submitted within <strong>1 hour</strong> of code delivery</li>
+        <li>The code has <strong>not been redeemed</strong> on any platform</li>
+        <li>You provide verifiable proof of the issue (screenshots, error messages)</li>
+        <li>The issue is confirmed to be on our end (e.g., invalid code, wrong region)</li>
+      </ul>
+      
+      <p>To request a review, contact our support team at <a href="mailto:faq@kinguin.net" class="notranslate" translate="no">faq@kinguin.net</a> with your order number and detailed explanation.</p>
+    </div>
+
+    <!-- 4. USER RESPONSIBILITIES -->
+    <div class="terms-section">
+      <h3>4. User Responsibilities</h3>
+      <p>By purchasing from our Site, you agree to:</p>
+      <ul>
+        <li>Provide accurate, current, and complete contact information</li>
+        <li>Redeem gift cards only on the platform and region specified in the product description</li>
+        <li>Not attempt to resell, transfer, or commercialize gift card codes obtained from our Site</li>
+        <li>Not use stolen payment methods, fraudulent accounts, or engage in any illegal activity</li>
+        <li>Keep your account credentials (if applicable) secure and confidential</li>
+      </ul>
+      
+      <div class="warning">
+        <strong>Region Lock Warning:</strong> Many gift cards are region-specific. Redeeming a code in the wrong region may result in permanent loss of value. Always verify the compatible region before purchasing.
+      </div>
+    </div>
+
+    <!-- 5. PAYMENT & SECURITY -->
+    <div class="terms-section">
+      <h3>5. Payment & Security</h3>
+      <p>We accept payments via:</p>
+      <ul>
+        <li>Credit/Debit Cards (Visa, Mastercard) processed through Stripe</li>
+        <li>PayPal</li>
+        <li>Mercado Pago (Brazil)</li>
+        <li>USDT (Tether) on BNB Smart Chain (BEP20)</li>
+      </ul>
+      
+      <p>All transactions are encrypted using SSL/TLS technology and comply with PCI DSS standards. We do not store your full credit card details on our servers.</p>
+      
+      <div class="success">
+        <strong>Order Confirmation:</strong> After successful payment, you will receive an order confirmation email. Your gift card code will be sent to the same email address immediately or within 24 hours in rare cases.
+      </div>
+    </div>
+
+    <!-- 6. LIMITATION OF LIABILITY -->
+    <div class="terms-section">
+      <h3>6. Limitation of Liability</h3>
+      <p>To the maximum extent permitted by applicable law, GiftCard Sale LLC shall not be liable for:</p>
+      <ul>
+        <li>Any indirect, incidental, special, or consequential damages</li>
+        <li>Loss of profits, data, or business opportunities</li>
+        <li>Issues arising from third-party platform policies, outages, or changes</li>
+        <li>User error in redeeming codes or selecting the wrong region</li>
+      </ul>
+      
+      <p>Our total liability for any claim related to your use of the Site shall not exceed the amount you paid for the specific gift card in question.</p>
+    </div>
+
+    <!-- 7. INTELLECTUAL PROPERTY -->
+    <div class="terms-section">
+      <h3>7. Intellectual Property</h3>
+      <p>All content on this Site, including text, graphics, logos, and software, is the property of GiftCard Sale LLC or its licensors and is protected by copyright and trademark laws.</p>
+      <p>Brand names, logos, and trademarks mentioned on this Site (e.g., Google Play, Steam, Netflix) are the property of their respective owners. Their use is for identification purposes only and does not imply endorsement.</p>
+    </div>
+
+    <!-- 8. PRIVACY -->
+    <div class="terms-section">
+      <h3>8. Privacy Policy</h3>
+      <p>Your privacy is important to us. Please review our <a href="privacy.html">Privacy Policy</a>, which explains how we collect, use, and protect your personal information.</p>
+      <p>By using our Site, you consent to the data practices described in our Privacy Policy.</p>
+    </div>
+
+    <!-- 9. GOVERNING LAW -->
+    <div class="terms-section">
+      <h3>9. Governing Law & Dispute Resolution</h3>
+      <p>These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict of law principles.</p>
+      <p>Any disputes arising from these Terms or your use of the Site shall first be submitted to our support team for resolution. If unresolved, disputes shall be settled through binding arbitration in accordance with the rules of the American Arbitration Association.</p>
+    </div>
+
+    <!-- 10. CHANGES TO TERMS -->
+    <div class="terms-section">
+      <h3>10. Changes to These Terms</h3>
+      <p>We reserve the right to modify these Terms at any time. Changes will be effective immediately upon posting to the Site with an updated "Last Updated" date.</p>
+      <p>Your continued use of the Site after any changes constitutes your acceptance of the new Terms. We encourage you to review this page periodically.</p>
+    </div>
+
+    <!-- 11. CONTACT INFORMATION -->
+    <div class="terms-section">
+      <h3>11. Contact Information</h3>
+      <p>For questions about these Terms or our services, please contact us:</p>
+      
+      <div class="contact-box">
+        <h4>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          Customer Support
+        </h4>
+        <p><strong>Email:</strong> <a href="mailto:faq@kinguin.net" class="notranslate" translate="no">faq@kinguin.net</a></p>
+        <p><strong>Response Time:</strong> Within 24-48 business hours</p>
+        <p><strong>Note:</strong> Please include your order number for faster assistance.</p>
+      </div>
+    </div>
+
+    <!-- TRANSLATOR NOTICE -->
+    <div class="translator-notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      <span>This document is in English. You can use Google Translate to view it in your preferred language.</span>
+    </div>
+
+    <a href="index.html" class="btn-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back to Store
+    </a>
+
+  </div>
+
+  <script>
+    // ✅ ACCORDION FUNCTIONALITY
+    function toggleAccordion(header) {
+      const item = header.parentElement;
+      item.classList.toggle('active');
+    }
+
+    // ✅ PREVENT TRANSLATION OF LOGO AND EMAILS
+    document.querySelectorAll('.notranslate').forEach(el => {
+      el.setAttribute('translate', 'no');
+    });
+  </script>
+
+</body>
+</html>

@@ -1,528 +1,477 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vender Gift Card - GiftCard Netlify</title>
+  <title>Sell & Buy Gift Cards - GiftCardSale</title>
+  
   <link rel="icon" type="image/webp" href="fasvcom.webp">
+  
   <style>
     :root {
-      --gold: #FFD700;
-      --gold-dark: #C5A000;
-      --gold-light: #FFF3C4;
-      --black: #0A0A0A;
-      --black-soft: #1A1A1A;
       --primary: #EA1D2C;
+      --primary-dark: #C41826;
       --success: #38B03F;
       --bg: #F7F7F7;
       --card: #FFFFFF;
       --text: #212225;
       --text-light: #767676;
-      --radius: 12px;
-      --paypal-blue: #0070BA;
-      --pix-green: #32BCAD;
+      --border: #e5e7eb;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow-x: hidden;
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh;
     }
 
-    body { 
-      background: var(--bg); 
-      color: var(--text); 
+    /* HEADER - NÃO TRADUZÍVEL */
+    .page-header {
+      background: var(--card);
+      padding: 12px 16px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--border);
+      height: 60px;
+    }
+    .back-btn {
+      background: none; border: none; cursor: pointer; color: var(--text);
+      padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .back-btn:hover { background: #f0f0f0; }
+    .back-btn svg { width: 24px; height: 24px; }
+    .header-logo { display: flex; align-items: center; gap: 8px; }
+    .header-logo svg { width: 28px; height: 28px; color: var(--primary); }
+    .header-logo h1 { font-size: 1.1rem; font-weight: 700; }
+    .header-logo h1 span { color: var(--primary); }
+
+    /* CONTAINER */
+    .page-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 24px 16px;
     }
 
-    header {
-      background: var(--card); padding: 12px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-bottom: 1px solid #eee; height: 60px;
-    }
-    .header-left { display: flex; align-items: center; gap: 12px; }
-    .menu-btn { background: none; border: none; cursor: pointer; color: var(--text); padding: 4px; display: flex; align-items: center; justify-content: center; }
-    .menu-btn svg { width: 26px; height: 26px; }
-    .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .brand svg { width: 28px; height: 28px; color: var(--primary); }
-    .brand h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); white-space: nowrap; }
-    .brand span { color: var(--primary); }
-    .header-icons { display: flex; align-items: center; gap: 4px; }
-    .icon-btn { background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); }
-    .icon-btn:hover { background: #f0f0f0; }
-    .icon-btn svg { width: 24px; height: 24px; }
-    .cart-wrapper { position: relative; }
-    .cart-badge { position: absolute; top: 0; right: 0; background: var(--primary); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); transform: scale(0); transition: transform 0.2s; }
-    .cart-badge.show { transform: scale(1); }
-
-    .search-container {
-      position: absolute; top: 60px; left: 0; right: 0; background: var(--card);
-      padding: 10px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 99;
-      transform: translateY(-100%); transition: transform 0.3s;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .search-container.active { transform: translateY(0); }
-    .search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: #f0f0f0; padding: 8px 12px; border-radius: 8px; }
-    .search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.95rem; }
-    .search-close { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 1.2rem; }
-
-    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
-    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 300px; background: var(--card); z-index: 201; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 2px 0 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
-    .sidebar.active { transform: translateX(0); }
-    .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, var(--black), var(--black-soft)); color: var(--gold); }
-    .sidebar-header h2 { font-size: 1.1rem; font-weight: 800; }
-    .close-sidebar { background: rgba(255,215,0,0.15); border: none; font-size: 1.3rem; cursor: pointer; color: var(--gold); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .close-sidebar:hover { background: rgba(255,215,0,0.25); }
-    .sidebar-search { padding: 16px; border-bottom: 1px solid #f0f0f0; }
-    .sidebar-search-box { display: flex; align-items: center; gap: 8px; background: #f5f5f5; padding: 10px 14px; border-radius: 10px; border: 1px solid #e0e0e0; }
-    .sidebar-search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.9rem; color: var(--text); }
-    .sidebar-search-box svg { width: 18px; height: 18px; color: var(--text-light); flex-shrink: 0; }
-    .sidebar-links { padding: 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
-    .sidebar-link { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); padding: 14px 16px; border-radius: 10px; transition: all 0.2s; font-weight: 500; font-size: 0.95rem; }
-    .sidebar-link:hover { background: #f9f9f9; color: var(--primary); }
-    .sidebar-link svg { width: 22px; height: 22px; flex-shrink: 0; }
-    .sidebar-divider { height: 1px; background: #eee; margin: 8px 16px; }
-    .sidebar-footer { padding: 16px; border-top: 1px solid #eee; background: #fafafa; }
-    .sidebar-footer p { font-size: 0.75rem; color: var(--text-light); text-align: center; }
-
-    /* MENSAGEM DE INDISPONIBILIDADE */
-    .unavailable-section {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
       text-align: center;
     }
-    .unavailable-icon {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 30px;
-      background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    .page-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    /* HERO SECTION */
+    .hero-section {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+      text-align: center;
+      color: white;
+    }
+    .hero-section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .hero-section p {
+      font-size: 0.95rem;
+      opacity: 0.95;
+      line-height: 1.5;
+    }
+
+    /* PROCESS STEPS */
+    .process-section {
+      margin-bottom: 40px;
+    }
+    .process-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .step-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-number {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      color: white;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(234, 29, 44, 0.2);
-    }
-    .unavailable-icon svg {
-      width: 70px;
-      height: 70px;
-      color: var(--primary);
-    }
-    .unavailable-title {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 20px;
-      line-height: 1.2;
-    }
-    .unavailable-title span {
-      color: var(--primary);
-    }
-    .unavailable-text {
+      font-weight: 700;
       font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .step-content h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .step-content p {
+      font-size: 0.9rem;
       color: var(--text-light);
-      line-height: 1.8;
+      line-height: 1.5;
+    }
+
+    /* PAYMENT METHODS */
+    .payment-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
       margin-bottom: 30px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      border: 1px solid var(--border);
     }
-    .unavailable-highlight {
-      background: linear-gradient(135deg, #fff3cd, #ffe69c);
-      padding: 20px 30px;
-      border-radius: 12px;
-      border-left: 4px solid var(--gold);
-      margin: 30px 0;
-      text-align: left;
-    }
-    .unavailable-highlight h3 {
-      color: var(--text);
+    .payment-section h3 {
       font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .payment-section h3 svg { width: 22px; height: 22px; color: var(--primary); }
+    
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .payment-method {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      border: 2px solid var(--border);
+      transition: all 0.2s;
+    }
+    .payment-method:hover {
+      border-color: var(--primary);
+      background: #fff5f5;
+    }
+    .payment-method svg {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .payment-method h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .payment-method p {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    /* PARTNER INFO */
+    .partner-section {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .partner-section h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #166534;
       margin-bottom: 10px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
-    .unavailable-highlight p {
-      color: var(--text-light);
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-    .btn-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--primary);
-      color: white;
-      padding: 14px 30px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 1rem;
-      transition: all 0.3s;
-      margin-top: 20px;
-      border: none;
-      cursor: pointer;
-    }
-    .btn-back:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(234, 29, 44, 0.4);
-    }
-    .btn-back svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    /* RODAPÉ MELHORADO */
-    .site-footer {
-      background: var(--black);
-      color: #a0a0a0;
-      padding: 40px 16px 25px;
-      margin-top: auto;
-      font-size: 0.85rem;
-      border-top: 1px solid #222;
-    }
-    .footer-container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .footer-content {
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-      margin-bottom: 25px;
-      padding-bottom: 25px;
-      border-bottom: 1px solid #222;
-    }
-    .footer-col {
-      min-width: 100%;
-    }
-    .footer-col h4 {
-      color: var(--gold);
-      margin-bottom: 12px;
-      font-size: 1rem;
-      font-weight: 800;
-    }
-    .footer-col p {
-      margin-bottom: 6px;
+    .partner-section h4 svg { width: 20px; height: 20px; }
+    .partner-section p {
+      font-size: 0.9rem;
+      color: #15803d;
       line-height: 1.5;
-      color: #ccc;
     }
-    .footer-col strong {
-      color: white;
-      font-weight: 600;
+    .partner-emails {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #bbf7d0;
     }
-    
-    /* Ícones de Pagamento e Segurança */
-    .footer-payments {
-      margin: 25px 0;
-      padding: 20px 0;
-      border-top: 1px solid #222;
-      border-bottom: 1px solid #222;
-    }
-    .footer-payments h4 {
-      color: var(--gold);
-      margin-bottom: 20px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      text-align: center;
-    }
-    .payment-badges {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-bottom: 25px;
-    }
-    .payment-badge {
-      background: transparent;
-      padding: 0;
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: none;
-      width: 80px;
-      height: 50px;
-      overflow: visible;
-    }
-    .payment-badge img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    .payment-badge svg {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    
-    .security-badges {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-    }
-    .security-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #38B03F;
+    .partner-emails p {
       font-size: 0.85rem;
-      font-weight: 600;
-      background: rgba(56, 176, 63, 0.15);
-      padding: 8px 15px;
-      border-radius: 8px;
+      margin-bottom: 6px;
     }
-    .security-badge svg {
-      width: 20px;
-      height: 20px;
+    .partner-emails a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
     }
-    
-    .footer-bottom {
+    .partner-emails a:hover { text-decoration: underline; }
+
+    /* REGION INFO */
+    .region-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border);
+    }
+    .region-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .region-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .region-card {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 16px;
       text-align: center;
-      padding-top: 20px;
     }
-    .footer-bottom p {
-      font-size: 0.75rem;
-      color: #666;
+    .region-card .flag {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    .region-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
       margin-bottom: 4px;
     }
-    .footer-bottom .cnae {
-      font-size: 0.7rem;
-      color: #555;
-      margin-top: 8px;
-      font-style: italic;
+    .region-card p {
+      font-size: 0.85rem;
+      color: var(--text-light);
     }
 
-    @media (max-width: 768px) {
-      .unavailable-title {
-        font-size: 1.6rem;
-      }
-      .unavailable-text {
-        font-size: 1rem;
-      }
-      .unavailable-icon {
-        width: 100px;
-        height: 100px;
-      }
-      .unavailable-icon svg {
-        width: 60px;
-        height: 60px;
-      }
+    /* TRANSLATOR NOTICE */
+    .translator-notice {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #0369a1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .translator-notice svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* BUTTON */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
     }
 
-    @media (max-width: 400px) {
-      .unavailable-title {
-        font-size: 1.4rem;
-      }
-      .unavailable-text {
-        font-size: 0.95rem;
-      }
-      .payment-badge { width: 65px; height: 45px; }
-      .security-badge { font-size: 0.75rem; padding: 6px 12px; }
+    @media (max-width: 480px) {
+      .page-container { padding: 16px 12px; }
+      .payment-grid, .region-grid { grid-template-columns: 1fr; }
+      .step-card { flex-direction: column; text-align: center; }
+      .step-number { margin: 0 auto; }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="header-left">
-      <button class="menu-btn" onclick="toggleMenu()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <div class="brand" onclick="window.location.href='index.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <h1>Gift<span>Card</span> Netlify</h1>
-      </div>
-    </div>
-    <div class="header-icons">
-      <button class="icon-btn" onclick="toggleSearch()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
-      <button class="icon-btn" onclick="window.location.href='login.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </button>
-      <button class="icon-btn" onclick="window.location.href='index.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      </button>
+  <!-- HEADER - NÃO TRADUZÍVEL -->
+  <header class="page-header">
+    <button class="back-btn" onclick="window.history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <!-- ✅ LOGO NÃO TRADUZÍVEL ✅ -->
+      <h1 class="notranslate" translate="no">giftcard<span>sale</span></h1>
     </div>
   </header>
 
-  <div class="search-container" id="searchContainer">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:#767676"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Pesquisar produtos...">
-    </div>
-    <button class="search-close" onclick="toggleSearch()">✕</button>
-  </div>
+  <div class="page-container">
+    
+    <h2 class="page-title">How to Buy Gift Cards</h2>
+    <p class="page-subtitle">Simple, secure, and instant delivery worldwide</p>
 
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h2>Menu</h2>
-      <button class="close-sidebar" onclick="toggleMenu()">✕</button>
+    <!-- HERO SECTION -->
+    <div class="hero-section">
+      <h2>Buy Discounted Gift Cards Instantly</h2>
+      <p>Get up to 25% OFF on Google Play, Steam, Netflix, Apple Store, and more. Instant digital delivery • Secure payments • Global support</p>
     </div>
-    <div class="sidebar-search">
-      <div class="sidebar-search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="sidebarSearchInput" placeholder="Buscar produtos...">
-      </div>
-    </div>
-    <div class="sidebar-links">
-      <a href="login.html" class="sidebar-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Meu Perfil
-      </a>
-      <a href="index.html" class="sidebar-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        Comprar Gift Cards
-      </a>
-      <div class="sidebar-divider"></div>
-      <a href="#" class="sidebar-link" style="opacity: 0.5; pointer-events: none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        Vender Gift Card
-      </a>
-      <a href="politicas.html" class="sidebar-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Políticas de Uso
-      </a>
-      <a href="reembolso.html" class="sidebar-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        Reembolso
-      </a>
-      <div class="sidebar-divider"></div>
-      <a href="#" class="sidebar-link" onclick="toggleSearch(); toggleMenu(); return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Buscar Produtos
-      </a>
-    </div>
-    <div class="sidebar-footer"><p>GiftCard Netlify 2026</p></div>
-  </div>
 
-  <!-- SEÇÃO DE INDISPONIBILIDADE -->
-  <section class="unavailable-section">
-    <div class="unavailable-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-      </svg>
-    </div>
-    
-    <h1 class="unavailable-title">
-      Função <span>Indisponível</span>
-    </h1>
-    
-    <p class="unavailable-text">
-      Lamentamos informar, mas a opção de venda de Gift Cards está temporariamente suspensa. 
-      Esta medida foi necessária devido ao mau uso da plataforma por usuários mal-intencionados.
-    </p>
-    
-    <div class="unavailable-highlight">
-      <h3>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EA1D2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-          <line x1="12" y1="9" x2="12" y2="13"></line>
-          <line x1="12" y1="17" x2="12.01" y2="17"></line>
-        </svg>
-        Motivo da Suspensão
-      </h3>
-      <p>
-        Identificamos que alguns usuários estavam comprando Gift Cards com preços mais baixos 
-        em outras plataformas e revendendo para nós por valores mais altos, caracterizando 
-        prática de arbitragem e uso indevido do sistema. Para proteger nossa operação e manter 
-        a integridade da plataforma, decidimos suspender temporariamente esta funcionalidade 
-        enquanto implementamos medidas de segurança mais rigorosas.
-      </p>
-    </div>
-    
-    <p class="unavailable-text">
-      Enquanto isso, você continua podendo <strong>comprar Gift Cards</strong> com os melhores descontos do mercado! 
-      Agradecemos sua compreensão.
-    </p>
-    
-    <a href="index.html" class="btn-back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
-      </svg>
-      Voltar para a Loja
-    </a>
-  </section>
-
-  <!-- RODAPÉ -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-content">
-        <div class="footer-col">
-          <h4>Dados da Empresa</h4>
-          <p><strong>Razão Social:</strong> RI Comercio de Presente e Utilidades Ltda</p>
-          <p><strong>CNPJ:</strong> 09.271.959/0001-36</p>
-          <p><strong>Fundação:</strong> 21/11/2007</p>
-          <p style="margin-top: 10px;"><strong>Endereço:</strong><br>Rua Hemisferio, 257<br>Chacara Belenzinho<br>Sao Paulo - SP<br>CEP: 03.375-000</p>
+    <!-- PROCESS STEPS -->
+    <div class="process-section">
+      <h3>How It Works</h3>
+      
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Choose Your Gift Card</h4>
+          <p>Browse our catalog and select the gift card you need. We offer cards for gaming, streaming, shopping, and more.</p>
         </div>
       </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Complete Your Purchase</h4>
+          <p>Pay securely using credit/debit card or cryptocurrency. Your transaction is protected by SSL encryption and PCI DSS compliance.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Receive Your Code Instantly</h4>
+          <p>After payment confirmation, your gift card code is delivered to your email immediately. Most orders are processed within seconds.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Redeem & Enjoy</h4>
+          <p>Go to the respective platform (Google Play, Steam, etc.), enter your code, and start using your balance right away.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHODS -->
+    <div class="payment-section">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Payment Methods
+      </h3>
       
-      <!-- Ícones de Pagamento -->
-      <div class="footer-payments">
-        <h4>Formas de Pagamento</h4>
-        <div class="payment-badges">
-          <div class="payment-badge" title="Visa">
-            <img src="visa.sxIq5Dot.svg" alt="Visa" onerror="this.style.display='none'">
-          </div>
-          <div class="payment-badge" title="Mastercard">
-            <img src="mastercard.1c4_lyMp.svg" alt="Mastercard" onerror="this.style.display='none'">
-          </div>
-          <div class="payment-badge" title="Elo">
-            <img src="elo.KvOdnY_5.svg" alt="Elo" onerror="this.style.display='none'">
-          </div>
-          <div class="payment-badge" title="PIX">
-            <img src="pix.BiPKIIQK.svg" alt="PIX" onerror="this.style.display='none'">
-          </div>
+      <div class="payment-grid">
+        <div class="payment-method">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+          <h4>Credit / Debit Card</h4>
+          <p>Visa, Mastercard, and more. Processed securely via Stripe.</p>
         </div>
         
-        <!-- Ícones de Segurança -->
-        <div class="security-badges">
-          <div class="security-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Ambiente Seguro</span>
-          </div>
-          <div class="security-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>SSL Certificado</span>
-          </div>
-          <div class="security-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>Pagamento Verificado</span>
-          </div>
+        <div class="payment-method">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 7v10M8 10h8M8 14h8"/>
+          </svg>
+          <h4>Cryptocurrency</h4>
+          <p>Pay with USDT (Tether) on BNB Smart Chain (BEP20).</p>
         </div>
       </div>
+    </div>
+
+    <!-- PARTNER INFO -->
+    <div class="partner-section">
+      <h4>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Trusted Partner Network
+      </h4>
+      <p>We source our gift cards exclusively from authorized distributors and verified partners to ensure authenticity and reliability. Every code is legitimate and ready to use.</p>
       
-      <div class="footer-bottom">
-        <p>CNAE G-4761-0/03 - Comércio varejista de artigos de papelaria</p>
-        <p>&copy; 2026 RI Comercio de Presente e Utilidades Ltda. Todos os direitos reservados.</p>
+      <div class="partner-emails">
+        <p><strong>Partnership Inquiries:</strong> <a href="mailto:viktor@kinguin.net" class="notranslate" translate="no">viktor@kinguin.net</a></p>
+        <p><strong>Customer Support:</strong> <a href="mailto:faq@kinguin.net" class="notranslate" translate="no">faq@kinguin.net</a></p>
+        <p><strong>HR / Careers:</strong> <a href="mailto:patrycja@kinguin.net" class="notranslate" translate="no">patrycja@kinguin.net</a></p>
       </div>
     </div>
-  </footer>
+
+    <!-- REGION INFO -->
+    <div class="region-section">
+      <h3>Available Regions</h3>
+      <div class="region-grid">
+        <div class="region-card">
+          <div class="flag">🇧🇷</div>
+          <h4>Brazil</h4>
+          <p>Prices in BRL • Local payment methods • Portuguese support</p>
+        </div>
+        <div class="region-card">
+          <div class="flag">🇺🇸</div>
+          <h4>United States</h4>
+          <p>Prices in USD • International cards • English support</p>
+        </div>
+      </div>
+      <p style="margin-top: 16px; font-size: 0.9rem; color: var(--text-light); text-align: center;">
+        <strong>Tip:</strong> Select your country at the top of our site to see region-compatible gift cards and local pricing.
+      </p>
+    </div>
+
+    <!-- TRANSLATOR NOTICE -->
+    <div class="translator-notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      <span>This page is in English. You can use Google Translate to view it in your preferred language.</span>
+    </div>
+
+    <!-- CTA BUTTON -->
+    <a href="index.html" class="btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+      </svg>
+      Start Shopping Now
+    </a>
+
+  </div>
 
   <script>
-    function toggleMenu() {
-      document.getElementById('sidebar').classList.toggle('active');
-      document.getElementById('sidebarOverlay').classList.toggle('active');
-    }
-
-    function toggleSearch() { 
-      document.getElementById('searchContainer').classList.toggle('active'); 
-    }
+    // ✅ PREVENT TRANSLATION OF LOGO AND EMAILS
+    document.querySelectorAll('.notranslate').forEach(el => {
+      el.setAttribute('translate', 'no');
+    });
   </script>
+
 </body>
 </html>
