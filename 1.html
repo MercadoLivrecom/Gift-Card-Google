@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GERADOR MISTER</title>
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --panel: #ffffff;
+            --text: #222;
+            --text-muted: #666;
+            --gold: #d4af37;
+            --gold-dark: #b8962e;
+            --border: #ddd;
+            --shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+
+        /* HEADER */
+        header { display: flex; align-items: center; background: #000; padding: 16px 20px; position: relative; }
+        .icon-btn { width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .icon-btn svg { width: 100%; height: 100%; fill: #888; transition: fill 0.2s; }
+        .icon-btn:hover svg { fill: #fff; }
+        .header-title { flex: 1; margin-left: 16px; font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: linear-gradient(90deg, #c00 50%, var(--gold) 50%); -webkit-background-clip: text; background-clip: text; color: transparent; transform: skew(-3deg); }
+        .header-settings { margin-left: auto; }
+
+        /* SIDEBAR */
+        .sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100%; background: #000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; padding: 20px; box-shadow: 4px 0 20px rgba(0,0,0,0.3); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 999; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; color: #fff; text-decoration: none; border-bottom: 1px solid #222; transition: color 0.2s; }
+        .sidebar-item:hover { color: var(--gold); }
+        .sidebar-item svg { width: 20px; height: 20px; fill: #888; }
+        .sidebar-item:hover svg { fill: var(--gold); }
+
+        /* MAIN CONTENT */
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px 100px; }
+        .intro-text { font-size: 15px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.6; }
+
+        .input-group { width: 90%; margin: 0 auto 18px; }
+        .input-group label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group label svg { width: 16px; height: 16px; fill: var(--gold); }
+
+        .input-wrapper { position: relative; }
+        .input-wrapper svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: #999; pointer-events: none; }
+        .input-field, select { width: 100%; padding: 12px 14px 12px 40px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); font-size: 15px; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        .input-field:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
+        select { padding-left: 40px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+
+        /* DATE ROW (SIDE BY SIDE, COMPACT) */
+        .date-row { display: flex; gap: 12px; width: 90%; margin: 0 auto 18px; }
+        .date-col { flex: 1; min-width: 0; }
+        .date-col .input-field, .date-col select { padding-left: 14px; } /* Remove icon padding for these */
+
+        /* TOGGLES */
+        .toggle-group { display: flex; gap: 12px; width: 90%; margin: 0 auto 18px; }
+        .toggle-btn { flex: 1; padding: 10px; border: 1px solid var(--border); background: var(--panel); border-radius: 6px; cursor: pointer; text-align: center; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        .toggle-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+
+        /* GENERATE BUTTON */
+        .btn-generate { width: 90%; margin: 25px auto 0; padding: 14px; background: var(--gold); color: #000; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.2s, background 0.2s; }
+        .btn-generate:hover { background: var(--gold-dark); transform: translateY(-2px); }
+        .btn-generate:active { transform: translateY(0); }
+        .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* PROGRESS & STATUS */
+        .progress-container { width: 90%; margin: 15px auto 0; height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; display: none; }
+        .progress-container.active { display: block; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), #e6c84d); transition: width 0.3s ease; }
+        .status-msg { width: 90%; margin: 8px auto 0; font-size: 13px; color: var(--text-muted); text-align: center; min-height: 20px; }
+        .status-msg.error { color: #c00; }
+        .status-msg.success { color: #28a745; }
+
+        /* OUTPUT BOX */
+        .output-box { width: 90%; margin: 20px auto 0; background: #111; border-radius: 8px; padding: 15px; position: relative; min-height: 150px; max-height: 400px; overflow-y: auto; display: none; }
+        .output-box.active { display: block; }
+        .output-content { color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 4px; padding: 6px; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); }
+        .copy-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+        /* WHATSAPP FLOAT */
+        .whatsapp-float { position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(37,211,102,0.3); cursor: pointer; z-index: 100; transition: transform 0.3s; }
+        .whatsapp-float:hover { transform: scale(1.1); }
+        .whatsapp-float svg { width: 30px; height: 30px; fill: #fff; }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .header-title { font-size: 18px; }
+            .input-group, .date-row, .toggle-group, .btn-generate, .progress-container, .status-msg, .output-box { width: 100%; margin-left: 0; margin-right: 0; }
+            .container { padding: 0 15px 100px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <a href="1.html" class="sidebar-item"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>Comprar projetos</a>
+        <a href="2.html" class="sidebar-item"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Contatos oficial</a>
+        <a href="3.html" class="sidebar-item"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Criador</a>
+    </aside>
+
+    <header>
+        <div class="icon-btn" id="menuBtn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
+        <div class="header-title">GERADOR MISTER</div>
+        <div class="icon-btn header-settings" onclick="location.href='config.html'"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+    </header>
+
+    <div class="container">
+        <div class="intro-text">Nosso site preza muito a privacidade. Não coletamos nenhum dado importante da sua privacidade nem do seu navegador. Use com moderação.</div>
+
+        <!-- BIN -->
+        <div class="input-group">
+            <label><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>BIN (6 a 9 dígitos)</label>
+            <div class="input-wrapper"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm-9 12H6v-2h5v2zm4 0h-2v-2h2v2zm2-4H6v-2h12v2z"/></svg><input type="text" id="binInput" class="input-field" maxlength="9" placeholder="Ex: 379890" inputmode="numeric"></div>
+        </div>
+
+        <!-- MONTH / YEAR (SIDE BY SIDE, COMPACT) -->
+        <div class="date-row">
+            <div class="date-col">
+                <label style="justify-content:center;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#d4af37;"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>Mês</label>
+                <select id="monthSelect"><option value="">Selecione</option><option value="01">01 - Jan</option><option value="02">02 - Fev</option><option value="03">03 - Mar</option><option value="04">04 - Abr</option><option value="05">05 - Mai</option><option value="06">06 - Jun</option><option value="07">07 - Jul</option><option value="08">08 - Ago</option><option value="09">09 - Set</option><option value="10">10 - Out</option><option value="11">11 - Nov</option><option value="12">12 - Dez</option></select>
+            </div>
+            <div class="date-col">
+                <label style="justify-content:center;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#d4af37;"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>Ano</label>
+                <select id="yearSelect"></select>
+            </div>
+        </div>
+
+        <!-- CVV FORMAT -->
+        <div class="toggle-group">
+            <div class="toggle-btn active" data-cvv="000">CVV 000</div>
+            <div class="toggle-btn" data-cvv="0000">CVV 0000</div>
+        </div>
+
+        <!-- DATE FORMAT -->
+        <div class="toggle-group">
+            <div class="toggle-btn active" data-date="YYYY">|MM|YYYY</div>
+            <div class="toggle-btn" data-date="YY">|MM|YY</div>
+        </div>
+
+        <!-- QUANTITY -->
+        <div class="input-group">
+            <label><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Quantidade</label>
+            <div class="input-wrapper"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm4-4H7v-2h9v2zm0-4H7V7h9v2z"/></svg><input type="number" id="qtyInput" class="input-field" placeholder="Ex: 10000" list="qtyPresets" inputmode="numeric"><datalist id="qtyPresets"><option value="3000"><option value="10000"><option value="20000"><option value="50000"><option value="100000"><option value="300000"></datalist></div>
+        </div>
+
+        <button class="btn-generate" id="generateBtn">GERAR</button>
+
+        <div class="progress-container" id="progressContainer"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="status-msg" id="statusMsg"></div>
+
+        <div class="output-box" id="outputBox">
+            <button class="copy-btn" id="copyBtn" title="Copiar tudo"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+            <pre class="output-content" id="outputContent"></pre>
+        </div>
+    </div>
+
+    <a href="https://wa.me/5585997787846" class="whatsapp-float" target="_blank"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+    <script>
+        // Init Years
+        const yearSelect = document.getElementById('yearSelect');
+        const cy = new Date().getFullYear();
+        for(let y=cy; y<=cy+10; y++){ const o=document.createElement('option'); o.value=y; o.textContent=y; yearSelect.appendChild(o); }
+
+        // Sidebar
+        const menuBtn=document.getElementById('menuBtn'), sidebar=document.getElementById('sidebar'), overlay=document.getElementById('sidebarOverlay');
+        menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+        overlay.addEventListener('click',()=>{ sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+        // Toggles
+        document.querySelectorAll('.toggle-group').forEach(g=>{
+            g.querySelectorAll('.toggle-btn').forEach(b=>{
+                b.addEventListener('click',()=>{ g.querySelectorAll('.toggle-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); });
+            });
+        });
+
+        // Luhn Logic
+        function luhnCheck(num){
+            let s=0, a=false;
+            for(let i=num.length-1;i>=0;i--){ let n=parseInt(num[i],10); if(a){n*=2; if(n>9)n-=9;} s+=n; a=!a; }
+            return s%10===0;
+        }
+        function genLuhn(bin){
+            let n=bin;
+            while(n.length<15) n+=Math.floor(Math.random()*10);
+            let s=0, a=true;
+            for(let i=n.length-1;i>=0;i--){ let d=parseInt(n[i],10); if(a){d*=2; if(d>9)d-=9;} s+=d; a=!a; }
+            return n + ((10-(s%10))%10);
+        }
+
+        // Generator
+        const binInput=document.getElementById('binInput'), monthSelect=document.getElementById('monthSelect'), qtyInput=document.getElementById('qtyInput');
+        const genBtn=document.getElementById('generateBtn'), progCont=document.getElementById('progressContainer'), progBar=document.getElementById('progressBar');
+        const status=document.getElementById('statusMsg'), outBox=document.getElementById('outputBox'), outCont=document.getElementById('outputContent'), copyBtn=document.getElementById('copyBtn');
+
+        genBtn.addEventListener('click', async ()=>{
+            const bin=binInput.value.replace(/\D/g,''), month=monthSelect.value, year=document.getElementById('yearSelect').value, qty=parseInt(qtyInput.value,10);
+            status.className='status-msg'; status.textContent='';
+            
+            if(bin.length<6 || bin.length>9 || !/^\d+$/.test(bin)){ status.className='status-msg error'; status.textContent='BIN inválida: use 6 a 9 dígitos.'; return; }
+            if(!month||!year){ status.className='status-msg error'; status.textContent='Selecione mês e ano.'; return; }
+            if(!qty||qty<1){ status.className='status-msg error'; status.textContent='Quantidade inválida.'; return; }
+            
+            const now=new Date(); const exp=new Date(parseInt(year), parseInt(month)-1, 1);
+            if(exp<=now){ status.className='status-msg error'; status.textContent='Data expirada ou inválida.'; return; }
+
+            genBtn.disabled=true; progCont.classList.add('active'); outBox.classList.remove('active'); progBar.style.width='0%'; status.textContent='Processando...';
+            
+            const cvv=document.querySelector('.toggle-group:first-of-type .toggle-btn.active').dataset.cvv;
+            const df=document.querySelector('.toggle-group:last-of-type .toggle-btn.active').dataset.date;
+            const ds=`|${month}|${df==='YY'?year.slice(2):year}`;
+            
+            const res=[], chunk=10000, total=Math.ceil(qty/chunk);
+            
+            for(let i=0;i<total;i++){
+                const s=i*chunk, e=Math.min(s+chunk,qty);
+                for(let j=s;j<e;j++){ const c=genLuhn(bin); if(luhnCheck(c)) res.push(`${c}${ds}|${cvv}`); }
+                const p=Math.round(((i+1)/total)*100);
+                progBar.style.width=p+'%'; status.textContent=`Gerando... ${p}%`;
+                await new Promise(r=>setTimeout(r, 5)); // Yield UI
+            }
+            
+            progBar.style.width='100%'; status.className='status-msg success'; status.textContent=`Concluído! ${res.length} gerados.`;
+            outCont.textContent=res.join('\n'); outBox.classList.add('active'); genBtn.disabled=false;
+        });
+
+        copyBtn.addEventListener('click',()=>{
+            if(!outCont.textContent) return;
+            navigator.clipboard.writeText(outCont.textContent).then(()=>{
+                const orig=copyBtn.innerHTML; copyBtn.innerHTML='<svg viewBox="0 0 24 24" fill="#28a745"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+                setTimeout(()=>copyBtn.innerHTML=orig, 1500);
+            });
+        });
+    </script>
+</body>
+</html>
