@@ -5,105 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GERADOR MISTER</title>
     <style>
-        :root {
-            --bg: #f5f5f5;
-            --panel: #ffffff;
-            --text: #222;
-            --text-muted: #666;
-            --gold: #d4af37;
-            --gold-dark: #b8962e;
-            --border: #ddd;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; }
-
+        /* RESET & BASE */
+        * { box-sizing: border-box; outline: none; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #f4f4f4; color: #333; }
+        
         /* HEADER */
-        header { display: flex; align-items: center; background: #000; padding: 15px 20px; }
-        .icon-btn { width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .icon-btn svg { width: 100%; height: 100%; fill: #888; }
-        .icon-btn:hover svg { fill: #fff; }
-        .header-title { flex: 1; margin-left: 15px; font-size: 20px; font-weight: 800; text-transform: uppercase; background: linear-gradient(90deg, #c00 50%, var(--gold) 50%); -webkit-background-clip: text; color: transparent; transform: skew(-3deg); }
-        .header-settings { margin-left: auto; }
+        header { background: #000; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-icon, .settings-icon { cursor: pointer; width: 24px; height: 24px; fill: #888; }
+        .menu-icon:hover, .settings-icon:hover { fill: #fff; }
+        .logo { font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: linear-gradient(90deg, #e60000 50%, #d4af37 50%); -webkit-background-clip: text; color: transparent; transform: skew(-5deg); }
 
-        /* SIDEBAR */
-        .sidebar { position: fixed; top: 0; left: 0; width: 250px; height: 100%; background: #000; transform: translateX(-100%); transition: 0.3s; z-index: 1000; padding: 20px; }
-        .sidebar.open { transform: translateX(0); }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 999; }
-        .overlay.active { opacity: 1; pointer-events: auto; }
-        .sidebar a { display: block; padding: 15px 0; color: #fff; text-decoration: none; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 10px; }
-        .sidebar a svg { width: 20px; height: 20px; fill: #888; }
-        .sidebar a:hover svg { fill: var(--gold); }
+        /* CONTAINER */
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
 
-        /* MAIN CONTENT */
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px 100px; }
+        /* INPUTS & LABELS */
+        .group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        label svg { width: 14px; height: 14px; fill: #d4af37; }
         
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
-        .input-group label svg { width: 14px; height: 14px; fill: var(--gold); }
-        
-        .input-wrapper { position: relative; }
-        .input-wrapper svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: #999; pointer-events: none; }
-        
-        input, select { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid var(--border); border-radius: 6px; background: #fff; font-size: 15px; outline: none; }
-        input:focus, select:focus { border-color: var(--gold); }
-        
-        /* DATE ROW (SIDE BY SIDE) */
-        .date-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: #fff; }
+        input:focus, select:focus { border-color: #d4af37; }
+
+        /* DATE ROW */
+        .date-row { display: flex; gap: 10px; }
         .date-col { flex: 1; }
-        .date-col input, .date-col select { padding-left: 12px; } /* Remove icon space */
 
         /* TOGGLES */
         .toggle-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .toggle-btn { flex: 1; padding: 10px; border: 1px solid var(--border); background: #fff; border-radius: 6px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .toggle-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+        .toggle-btn { flex: 1; padding: 12px; text-align: center; background: #fff; border: 1px solid #ddd; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .toggle-btn.active { background: #d4af37; color: #000; border-color: #d4af37; }
 
-        /* BUTTON & PROGRESS */
-        .btn-generate { width: 100%; padding: 14px; background: var(--gold); color: #000; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-        .btn-generate:hover { background: var(--gold-dark); }
+        /* BUTTON */
+        .btn-gerar { width: 100%; padding: 15px; background: #d4af37; color: #000; border: none; border-radius: 8px; font-size: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; transition: 0.2s; }
+        .btn-gerar:active { transform: scale(0.98); background: #b8962e; }
+
+        /* PROGRESS BAR */
+        .progress-box { height: 4px; background: #ddd; border-radius: 2px; margin-bottom: 15px; overflow: hidden; display: none; }
+        .progress-fill { height: 100%; width: 0%; background: #d4af37; transition: width 0.1s; }
+        .status-text { text-align: center; font-size: 12px; color: #888; margin-bottom: 10px; min-height: 15px; }
+
+        /* OUTPUT BOX - DESIGN CLARO */
+        .output-box { 
+            background: #f4f4f4; 
+            border: 2px solid #d4af37;
+            border-radius: 10px; 
+            padding: 15px; 
+            position: relative; 
+            display: none; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        .output-box.show { display: block; }
         
-        .progress-bar { height: 6px; background: #e0e0e0; border-radius: 3px; margin: 15px 0; overflow: hidden; display: none; }
-        .progress-fill { height: 100%; width: 0%; background: var(--gold); transition: width 0.2s; }
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
         
-        .status-msg { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 10px; min-height: 15px; }
-        .error { color: #c00; }
+        .output-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .copy-btn {
+            background: #d4af37; 
+            border: none; 
+            color: #000;
+            padding: 8px 15px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 13px;
+            font-weight: 600;
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .copy-btn:hover { background: #b8962e; transform: scale(1.05); }
+        .copy-btn svg { width: 16px; height: 16px; fill: #000; }
+        
+        .output-content { 
+            color: #000; 
+            font-family: 'Courier New', monospace; 
+            font-size: 13px; 
+            white-space: pre-wrap; 
+            word-break: break-all; 
+            max-height: 300px; 
+            overflow-y: auto; 
+            line-height: 1.6;
+            background: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
 
-        /* OUTPUT */
-        .output-box { background: #111; border-radius: 8px; padding: 15px; position: relative; display: none; max-height: 300px; overflow-y: auto; }
-        .output-box.active { display: block; }
-        .output-content { color: #e0e0e0; font-family: monospace; font-size: 12px; white-space: pre-wrap; }
-        .copy-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 4px; padding: 5px; cursor: pointer; }
-        .copy-btn svg { width: 16px; height: 16px; fill: #fff; }
-
-        /* WHATSAPP */
-        .whatsapp-float { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        /* WHATSAPP FLOAT */
+        .whatsapp-float { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 200; }
         .whatsapp-float svg { width: 30px; height: 30px; fill: #fff; }
+
+        /* SIDEBAR */
+        .sidebar { position: fixed; top: 0; left: -260px; width: 260px; height: 100%; background: #000; z-index: 300; transition: 0.3s; padding: 20px; }
+        .sidebar.open { left: 0; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 299; display: none; }
+        .sidebar-overlay.open { display: block; }
+        .sidebar a { display: block; color: #fff; padding: 15px 0; border-bottom: 1px solid #333; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .sidebar a svg { width: 20px; height: 20px; fill: #888; }
     </style>
 </head>
 <body>
 
-    <div class="overlay" id="overlay"></div>
-    <aside class="sidebar" id="sidebar">
-        <a href="1.html"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10z"/></svg>Comprar projetos</a>
-        <a href="2.html"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Contatos oficial</a>
-        <a href="3.html"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Criador</a>
-    </aside>
+    <!-- SIDEBAR -->
+    <div class="sidebar-overlay" id="overlay"></div>
+    <div class="sidebar" id="sidebar">
+        <a href="1.html"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10z"/></svg>Comprar Projetos</a>
+        <a href="2.html"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Contatos Oficial</a>
+        <a href="3.html"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/></svg>Criador</a>
+    </div>
 
+    <!-- HEADER -->
     <header>
-        <div class="icon-btn" id="menuBtn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></div>
-        <div class="header-title">GERADOR MISTER</div>
-        <div class="icon-btn header-settings" onclick="location.href='config.html'"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+        <div class="header-left">
+            <svg class="menu-icon" id="menuBtn" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+            <div class="logo">GERADOR MISTER</div>
+        </div>
+        <svg class="settings-icon" onclick="location.href='config.html'" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
     </header>
 
+    <!-- CONTENT -->
     <div class="container">
+        
         <!-- BIN -->
-        <div class="input-group">
-            <label><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6z"/></svg>BIN (6 a 9 dígitos)</label>
-            <div class="input-wrapper"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2z"/></svg><input type="number" id="binInput" placeholder="Ex: 509050" maxlength="9"></div>
+        <div class="group">
+            <label><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6z"/></svg>BIN (6+ dígitos)</label>
+            <input type="number" id="binInput" placeholder="Ex: 509050" inputmode="numeric">
         </div>
 
-        <!-- DATE ROW -->
+        <!-- DATE -->
         <div class="date-row">
-            <div class="date-col input-group">
+            <div class="group date-col">
                 <label style="justify-content:center;"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .89-2 2v14c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 16H5V8h14v11z"/></svg>Mês</label>
                 <select id="monthSelect">
                     <option value="">Selecione</option>
@@ -113,149 +158,227 @@
                     <option value="10">10 - Out</option><option value="11">11 - Nov</option><option value="12">12 - Dez</option>
                 </select>
             </div>
-            <div class="date-col input-group">
+            <div class="group date-col">
                 <label style="justify-content:center;"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .89-2 2v14c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 16H5V8h14v11z"/></svg>Ano</label>
                 <select id="yearSelect"></select>
             </div>
         </div>
 
         <!-- TOGGLES -->
-        <div class="toggle-group">
-            <div class="toggle-btn active" onclick="setToggle(this, 'cvv')" data-val="000">CVV 000</div>
-            <div class="toggle-btn" onclick="setToggle(this, 'cvv')" data-val="0000">CVV 0000</div>
+        <div class="toggle-group" id="cvvGroup">
+            <div class="toggle-btn active" onclick="selectToggle('cvvGroup', this)">CVV 000</div>
+            <div class="toggle-btn" onclick="selectToggle('cvvGroup', this)">CVV 0000</div>
         </div>
 
-        <div class="toggle-group">
-            <div class="toggle-btn active" onclick="setToggle(this, 'date')" data-val="YYYY">|MM|YYYY</div>
-            <div class="toggle-btn" onclick="setToggle(this, 'date')" data-val="YY">|MM|YY</div>
+        <div class="toggle-group" id="dateGroup">
+            <div class="toggle-btn active" onclick="selectToggle('dateGroup', this)">|MM|YYYY</div>
+            <div class="toggle-btn" onclick="selectToggle('dateGroup', this)">|MM|YY</div>
         </div>
 
         <!-- QUANTITY -->
-        <div class="input-group">
-            <label><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Quantidade</label>
-            <div class="input-wrapper"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2z"/></svg><input type="number" id="qtyInput" placeholder="Ex: 1000" value="10"></div>
+        <div class="group">
+            <label><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/></svg>Quantidade</label>
+            <input type="number" id="qtyInput" value="10" inputmode="numeric">
         </div>
 
-        <button class="btn-generate" onclick="generateCards()">GERAR</button>
-        
-        <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="status-msg" id="statusMsg"></div>
+        <!-- BUTTON -->
+        <button class="btn-gerar" id="generateBtn">GERAR</button>
 
+        <!-- PROGRESS -->
+        <div class="progress-box" id="progressBox">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="status-text" id="statusText"></div>
+
+        <!-- OUTPUT BOX -->
         <div class="output-box" id="outputBox">
-            <button class="copy-btn" onclick="copyText()"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/></svg></button>
+            <div class="output-header">
+                <span class="output-title">CARTÕES GERADOS</span>
+                <button class="copy-btn" onclick="copyResult()">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/></svg>
+                    COPIAR
+                </button>
+            </div>
             <div class="output-content" id="outputContent"></div>
         </div>
+
     </div>
 
-    <a href="https://wa.me/5585997787846" class="whatsapp-float" target="_blank"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+    <!-- WHATSAPP -->
+    <a href="https://wa.me/5585997787846" class="whatsapp-float" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
 
     <script>
-        // Init
-        const years = document.getElementById('yearSelect');
+        // --- SETUP YEARS ---
+        const yearSelect = document.getElementById('yearSelect');
         const currentYear = new Date().getFullYear();
-        for(let y=currentYear; y<=currentYear+10; y++) {
+        for (let y = currentYear; y <= currentYear + 10; y++) {
             let opt = document.createElement('option');
             opt.value = y; opt.text = y;
-            years.appendChild(opt);
+            yearSelect.appendChild(opt);
         }
 
-        // Sidebar
-        const menu = document.getElementById('menuBtn');
+        // --- SIDEBAR ---
+        const menuBtn = document.getElementById('menuBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        menu.onclick = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
-        overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+        
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            overlay.classList.add('open');
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
 
-        // Toggles
-        function setToggle(el, group) {
-            el.parentElement.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
+        // --- TOGGLE LOGIC ---
+        function selectToggle(groupId, element) {
+            const group = document.getElementById(groupId);
+            group.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
         }
 
-        // Luhn Algorithm Logic
-        function luhnCheck(num) {
-            let sum = 0, alt = false;
-            for (let i = num.length - 1; i >= 0; i--) {
-                let n = parseInt(num[i], 10);
-                if (alt) { n *= 2; if (n > 9) n -= 9; }
-                sum += n; alt = !alt;
+        // --- VALIDAÇÃO DE BIN ---
+        function isValidBin(bin) {
+            // BINs inválidas: começam com 0, 1, 8, 9
+            // Cartões válidos:
+            // Visa: 4
+            // Mastercard: 51-55, 2221-2720
+            // Amex: 34, 37
+            // Discover: 6011, 622126-622925, 644-649, 65
+            
+            const firstDigit = bin.charAt(0);
+            
+            // Verifica se começa com número inválido
+            if (firstDigit === '0' || firstDigit === '1' || firstDigit === '8' || firstDigit === '9') {
+                return false;
             }
-            return sum % 10 === 0;
+            
+            return true;
         }
 
+        // --- LUHN ALGORITHM ---
         function generateLuhn(bin) {
-            // Standard 16 digits: BIN (6-9) + Random + Check Digit
             let number = bin.toString();
-            // Fill random until 15 digits
+            // Completa com números aleatórios até 15 dígitos
             while (number.length < 15) {
                 number += Math.floor(Math.random() * 10);
             }
-            // Calculate check digit
-            let sum = 0, alt = true;
+            
+            // Calcula dígito verificador Luhn
+            let sum = 0;
+            let doubleDigit = true;
+            
             for (let i = number.length - 1; i >= 0; i--) {
-                let n = parseInt(number[i], 10);
-                if (alt) { n *= 2; if (n > 9) n -= 9; }
-                sum += n; alt = !alt;
+                let digit = parseInt(number[i], 10);
+                if (doubleDigit) {
+                    digit *= 2;
+                    if (digit > 9) digit -= 9;
+                }
+                sum += digit;
+                doubleDigit = !doubleDigit;
             }
+            
             let checkDigit = (10 - (sum % 10)) % 10;
             return number + checkDigit;
         }
 
-        // Generate Function
-        function generateCards() {
+        // --- GENERATE FUNCTION ---
+        document.getElementById('generateBtn').addEventListener('click', function() {
             const bin = document.getElementById('binInput').value.replace(/\D/g, '');
             const month = document.getElementById('monthSelect').value;
             const year = document.getElementById('yearSelect').value;
             const qty = parseInt(document.getElementById('qtyInput').value);
-            const cvv = document.querySelector('.toggle-group:first-child .active').dataset.val;
-            const dateFmt = document.querySelector('.toggle-group:last-child .active').dataset.val;
-
-            // Validation
-            const status = document.getElementById('statusMsg');
-            if (!bin || bin.length < 6 || bin.length > 9) {
-                status.textContent = "BIN inválida (6-9 dígitos)"; status.className = "status-msg error"; return;
+            
+            const cvvVal = document.querySelector('#cvvGroup .active').textContent.includes('0000') ? '0000' : '000';
+            const dateVal = document.querySelector('#dateGroup .active').textContent.includes('YYYY') ? 'YYYY' : 'YY';
+            
+            const statusText = document.getElementById('statusText');
+            
+            // Validação mínima
+            if (!bin || bin.length < 6) {
+                statusText.innerText = "Erro: BIN deve ter no mínimo 6 dígitos.";
+                statusText.style.color = "#c00";
+                document.getElementById('outputBox').classList.remove('show');
+                return;
             }
+            
+            // Validação de BIN inválida
+            if (!isValidBin(bin)) {
+                statusText.innerText = "Erro: Formato de BIN não reconhecido. BINs não podem começar com 0, 1, 8 ou 9.";
+                statusText.style.color = "#c00";
+                document.getElementById('outputBox').classList.remove('show');
+                return;
+            }
+            
             if (!month || !year) {
-                status.textContent = "Selecione Mês e Ano"; status.className = "status-msg error"; return;
+                statusText.innerText = "Erro: Selecione Mês e Ano.";
+                statusText.style.color = "#c00";
+                document.getElementById('outputBox').classList.remove('show');
+                return;
             }
             if (!qty || qty < 1) {
-                status.textContent = "Quantidade inválida"; status.className = "status-msg error"; return;
+                statusText.innerText = "Erro: Quantidade inválida.";
+                statusText.style.color = "#c00";
+                document.getElementById('outputBox').classList.remove('show');
+                return;
             }
 
-            // UI Updates
-            document.getElementById('progressBar').style.display = 'block';
+            // UI Setup
+            statusText.innerText = "Gerando...";
+            statusText.style.color = "#888";
+            document.getElementById('progressBox').style.display = 'block';
             document.getElementById('progressFill').style.width = '0%';
-            status.textContent = "Gerando..."; status.className = "status-msg";
-            document.getElementById('outputBox').classList.remove('active');
-
-            // Date String Format
-            const dateStr = `|${month}|${dateFmt === 'YY' ? year.slice(2) : year}`;
-
-            // Generation Loop (Fast)
-            let results = [];
-            const step = Math.max(1, Math.floor(qty / 100)); // Update progress every 1%
+            document.getElementById('outputBox').classList.remove('show');
             
-            for (let i = 0; i < qty; i++) {
-                let card = generateLuhn(bin);
-                results.push(`${card}${dateStr}|${cvv}`);
-                
-                if (i % step === 0) {
-                    document.getElementById('progressFill').style.width = ((i / qty) * 100) + '%';
+            let dateStr = `|${month}|`;
+            dateStr += (dateVal === 'YY') ? year.slice(2) : year;
+
+            let results = [];
+            const total = qty;
+            let i = 0;
+            const chunkSize = 1000; 
+
+            function processChunk() {
+                let end = Math.min(i + chunkSize, total);
+                for (; i < end; i++) {
+                    let cardNum = generateLuhn(bin);
+                    results.push(`${cardNum}${dateStr}|${cvvVal}`);
+                }
+
+                let percent = (i / total) * 100;
+                document.getElementById('progressFill').style.width = percent + '%';
+
+                if (i < total) {
+                    setTimeout(processChunk, 0);
+                } else {
+                    document.getElementById('progressFill').style.width = '100%';
+                    statusText.innerText = `Sucesso! ${total} cartões gerados com verificação Luhn.`;
+                    statusText.style.color = "#28a745";
+                    document.getElementById('outputContent').innerText = results.join('\n');
+                    document.getElementById('outputBox').classList.add('show');
                 }
             }
 
-            // Finalize
-            document.getElementById('progressFill').style.width = '100%';
-            document.getElementById('outputContent').textContent = results.join('\n');
-            document.getElementById('outputBox').classList.add('active');
-            status.textContent = `Sucesso! ${results.length} cartões gerados.`; status.className = "status-msg";
-        }
+            processChunk();
+        });
 
-        function copyText() {
-            const text = document.getElementById('outputContent').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Copiado!');
-            });
+        function copyResult() {
+            const text = document.getElementById('outputContent').innerText;
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.querySelector('.copy-btn');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> COPIADO!';
+                    btn.style.background = '#28a745';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.style.background = '#d4af37';
+                    }, 2000);
+                });
+            }
         }
     </script>
 </body>
